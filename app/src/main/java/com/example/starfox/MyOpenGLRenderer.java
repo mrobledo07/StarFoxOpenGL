@@ -13,9 +13,9 @@ public class MyOpenGLRenderer implements Renderer {
 	public Object3D object3D;
 	public Background background;
 	private float width, height;
-	private int angle = 0;
 	float Z = 1;
 	private Light light;
+	private float objectX = 0.0f, objectY = 0.0f;
 
 
 	public MyOpenGLRenderer(Context context){
@@ -52,7 +52,7 @@ public class MyOpenGLRenderer implements Renderer {
 		background.loadTexture(gl, context);
 
 		light = new Light(gl, GL10.GL_LIGHT0);
-		light.setPosition(new float[]{0.0f, 0f, 1, 0.0f});
+		light.setPosition(new float[]{0.0f, 0.0f, 1.0f, 0.0f});
 
 		light.setAmbientColor(new float[]{0.1f, 0.1f, 0.1f});
 		light.setDiffuseColor(new float[]{1, 1, 1});
@@ -79,6 +79,8 @@ public class MyOpenGLRenderer implements Renderer {
 
 		gl.glMatrixMode(GL10.GL_MODELVIEW);  // Select model-view matrix
 		gl.glLoadIdentity();                 // Reset
+
+		object3D.setScale(aspect < 1 ? 1.0f : aspect);
 	}
 
 	@Override
@@ -88,20 +90,19 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glLoadIdentity();
 
 		light.setPosition(new float[]{this.getZ(), 0f, 5, 0});
-		GLU.gluLookAt(gl, 0, 0, 10, 0f, 0f, 0f, 0f, 1f, 0f);
+		GLU.gluLookAt(gl, 0, 0, 8.5f, 0f, 0f, 0f, 0f, 1f, 0f);
 
 		// Draw background
+		gl.glPushMatrix();
+		gl.glTranslatef(0, 0, -1.5f);
 		background.draw(gl);
-
-
-		gl.glPushMatrix();// Reset model-view matrix ( NEW )
-		gl.glRotatef(angle, 1, 1, 1);
-		object3D.draw(gl);                   // Draw triangle ( NEW )
 		gl.glPopMatrix();
 
-
-
-		angle = (angle + 2)%360;
+		gl.glPushMatrix();// Reset model-view matrix ( NEW )
+		gl.glTranslatef(objectX, objectY, 0);
+		gl.glScalef(object3D.getScale(), object3D.getScale(), object3D.getScale());
+		object3D.draw(gl);
+		gl.glPopMatrix();
 
 	}
 
@@ -119,5 +120,23 @@ public class MyOpenGLRenderer implements Renderer {
 
 	public void setZ(float z) {
 		this.Z = z;
+	}
+
+	public void moveObject(float deltaX, float deltaY) {
+		objectX += deltaX;
+		objectY += deltaY;
+
+		float limitX, limitY;
+		float aspect = width / height;
+		if (aspect > 1.0f) {
+			limitX = aspect * 5;
+			limitY = aspect * 2;
+		} else {
+			limitX = aspect * 5;
+			limitY = aspect * 10;
+		}
+
+		objectX = Math.max(-limitX, Math.min(limitX, objectX));
+		objectY = Math.max(-limitY, Math.min(limitY, objectY));
 	}
 }

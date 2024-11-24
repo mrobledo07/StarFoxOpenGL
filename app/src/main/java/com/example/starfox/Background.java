@@ -51,10 +51,10 @@ public class Background {
     public void setAspect(float aspect) {
         if (aspect > 1.0f) {
             vertices = new float[]{
-                    -aspect*15,  -aspect*3, 0.0f, // A. left-bottom
-                    aspect * 15,  -aspect*3, 0.0f,  // B. right-bottom
-                    -aspect * 15, aspect*3, 0.0f,  // C. left-top
-                    aspect * 15, aspect*3, 0.0f    // D. right-top
+                    -aspect * 6,  -aspect*3, 0.0f, // A. left-bottom
+                    aspect * 6,  -aspect*3, 0.0f,  // B. right-bottom
+                    -aspect * 6, aspect*3, 0.0f,  // C. left-top
+                    aspect * 6, aspect*3, 0.0f    // D. right-top
             };
         } else {
             vertices = new float[]{

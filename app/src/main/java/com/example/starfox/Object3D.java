@@ -38,6 +38,8 @@ public class Object3D {
     int[] textures;
     int numFaceIndexs = 0;
 
+    private float scale = 1.0f;
+
     public Object3D(Context ctx, int filenameId) {
 
         try {
@@ -178,5 +180,13 @@ public class Object3D {
         //////////////////////// NEW ////////////////////////////////
         gl.glDisableClientState(GL10.GL_NORMAL_ARRAY);
         //////////////////////// NEW ////////////////////////////////
+    }
+
+    public void setScale(float scale) {
+        this.scale = scale;
+    }
+
+    public float getScale() {
+        return this.scale;
     }
 }
