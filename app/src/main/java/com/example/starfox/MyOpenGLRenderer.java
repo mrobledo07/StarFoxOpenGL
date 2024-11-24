@@ -89,7 +89,7 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 		gl.glLoadIdentity();
 
-		light.setPosition(new float[]{this.getZ(), 0f, 5, 0});
+		light.setPosition(new float[]{this.getZ(), -10, -10, 0});
 		GLU.gluLookAt(gl, 0, 0, 8.5f, 0f, 0f, 0f, 0f, 1f, 0f);
 
 		// Draw background

@@ -1,6 +1,7 @@
 package com.example.starfox;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -8,6 +9,7 @@ import android.view.MotionEvent;
 public class MainActivity extends Activity {
     /** Called when the activity is first created. */
     private MyOpenGLRenderer renderer;
+    private MediaPlayer mediaPlayer;
     private float previousX, previousY;
     private final float TOUCH_SCALE_FACTOR_X = 5.0f;
     private final float TOUCH_SCALE_FACTOR_Y = 10.0f;
@@ -19,6 +21,34 @@ public class MainActivity extends Activity {
         renderer = new MyOpenGLRenderer(this);
         view.setRenderer(renderer);
         setContentView(view);
+        mediaPlayer = MediaPlayer.create(this, R.raw.corneria_music);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     @Override
