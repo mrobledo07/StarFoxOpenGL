@@ -1,6 +1,7 @@
 package com.example.starfox;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -49,6 +50,11 @@ public class MainActivity extends Activity {
             mediaPlayer.release();
             mediaPlayer = null;
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 
     @Override
