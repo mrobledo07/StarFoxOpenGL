@@ -155,17 +155,13 @@ public class Object3D {
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         if(textureEnabled) gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 
-        //////////////////////// NEW ////////////////////////////////
         gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);
-        //////////////////////// NEW ////////////////////////////////
 
         // Specifies the location and data format of an array of vertex
         // coordinates to use when rendering.
         gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertexBuffer);
 
-        //////////////////////// NEW ////////////////////////////////
         gl.glNormalPointer(GL10.GL_FLOAT, 0, normalBuffer);
-        //////////////////////// NEW ////////////////////////////////
 
         if(textureEnabled) {
             gl.glTexCoordPointer(2, GL10.GL_FLOAT,0,texcoordBuffer);
@@ -178,9 +174,7 @@ public class Object3D {
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
         if(textureEnabled) gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 
-        //////////////////////// NEW ////////////////////////////////
         gl.glDisableClientState(GL10.GL_NORMAL_ARRAY);
-        //////////////////////// NEW ////////////////////////////////
     }
 
     public void setScale(float scale) {

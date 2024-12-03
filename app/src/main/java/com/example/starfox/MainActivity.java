@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
         if (mediaPlayer != null) {
             mediaPlayer.start();
         }
+        renderer.setAutoMovement(true);
     }
 
     @Override

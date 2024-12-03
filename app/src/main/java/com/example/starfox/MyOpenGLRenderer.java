@@ -13,9 +13,9 @@ public class MyOpenGLRenderer implements Renderer {
 	public Object3D object3D;
 	public Background background;
 	public WhiteDots whiteDots;
-	private float width, height, aspect, limitX, limitY, time = 0.0f,
-			oscillationSpeed = 0.02f, oscillationAmplitude = 0.25f;
-	float Z = 1;
+	private float width, height, aspect, time = 0.0f;
+
+    float Z = 1;
 	private Light light;
 	private boolean autoMovement = true;
 
@@ -24,7 +24,7 @@ public class MyOpenGLRenderer implements Renderer {
 		this.context = context;
 		this.object3D = new Object3D(context, R.raw.starfox_ship);
 		this.background = new Background();
-		//this.whiteDots = new WhiteDots((float)width/height);
+		this.whiteDots = new WhiteDots();
 	}
 
 
@@ -47,8 +47,6 @@ public class MyOpenGLRenderer implements Renderer {
 
 		// Enable Normalize
 		gl.glEnable(GL10.GL_NORMALIZE);
-		// You OpenGL|ES initialization code here
-		// ......
 
 		// Load background
 		background.loadTexture(gl, context);
@@ -82,10 +80,9 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glLoadIdentity();                 // Reset
 
 		object3D.setScale(aspect < 1 ? 1.0f + 0.25f : aspect * 1.25f);
-		limitCalculation();
-		setLimitPosition();
+		adjustPositionToLimit();
 
-		//whiteDots.setScale(aspect < 1 ? 1.0f : aspect);
+		whiteDots.setAspect(aspect);
 	}
 
 	@Override
@@ -95,7 +92,13 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glLoadIdentity();
 
 		light.setPosition(new float[]{this.getZ(), -10, -10, 0});
-		GLU.gluLookAt(gl, object3D.getX() / 4, object3D.getY() / 4, 8.5f, object3D.getX() / 4, object3D.getY() / 4, 0f, 0f, 1f, 0f);
+		float divisorX = 1.5f;
+		float divisorY = 4.0f;
+		if (aspect > 1.0f) {
+			divisorX = 4.0f;
+			divisorY = 1.5f;
+		}
+		GLU.gluLookAt(gl, object3D.getX() / divisorX, object3D.getY() / divisorY, 8.5f, object3D.getX() / divisorX, object3D.getY() / divisorY, 0f, 0f, 1f, 0f);
 
 		// Draw background
 		gl.glPushMatrix();
@@ -103,25 +106,29 @@ public class MyOpenGLRenderer implements Renderer {
 		background.draw(gl);
 		gl.glPopMatrix();
 
-		gl.glPushMatrix();// Reset model-view matrix ( NEW )
 		float oscillation = 0.0f;
+        float oscillationSpeed = 0.02f;
+		float oscillationAmplitude = 0.25f;
 
-		if (autoMovement) {
-			time += oscillationSpeed;
-			oscillation = (float) Math.sin(time) * oscillationAmplitude;
+		if (aspect > 1.0f) {
+			oscillationAmplitude = 0.5f;
 		}
 
-		object3D.setY(object3D.getY() + oscillation * oscillationSpeed);
+        if (autoMovement) {
+			time += oscillationSpeed;
+            oscillation = (float) Math.sin(time) * oscillationAmplitude;
+		}
+
+		moveObject(0, oscillation * oscillationSpeed);
+
+		gl.glPushMatrix();// Reset model-view matrix ( NEW )
 		gl.glTranslatef(object3D.getX(), object3D.getY(), 0);
 		gl.glScalef(object3D.getScale(), object3D.getScale(), object3D.getScale());
 		object3D.draw(gl);
 		gl.glPopMatrix();
 
-		/*gl.glPushMatrix();// Reset model-view matrix ( NEW )
-		gl.glTranslatef(objectX, objectY, 0);
-		gl.glScalef(whiteDots.getScale(), whiteDots.getScale(), whiteDots.getScale());
+		whiteDots.update();
 		whiteDots.draw(gl);
-		gl.glPopMatrix();*/
 
 	}
 
@@ -143,11 +150,11 @@ public class MyOpenGLRenderer implements Renderer {
 
 	public void moveObject(float deltaX, float deltaY) {
 		object3D.setPosition(object3D.getX() + deltaX, object3D.getY() + deltaY);
-		limitCalculation();
-		object3D.setPosition(Math.max(-limitX, Math.min(limitX, object3D.getX())), Math.max(-limitY, Math.min(limitY, object3D.getY())));
+		adjustPositionToLimit();
 	}
 
-	public void limitCalculation() {
+	public void adjustPositionToLimit() {
+		float limitX, limitY;
 		if (aspect > 1.0f) {
 			limitX = aspect * 5;
 			limitY = aspect * 3;
@@ -155,9 +162,7 @@ public class MyOpenGLRenderer implements Renderer {
 			limitX = aspect * 5;
 			limitY = aspect * 10;
 		}
-	}
 
-	public void setLimitPosition() {
 		if (object3D.getX() < -limitX)
 			object3D.setX(-limitX);
 		else if (object3D.getX() > limitX)
