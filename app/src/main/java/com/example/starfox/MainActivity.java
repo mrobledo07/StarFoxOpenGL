@@ -66,6 +66,11 @@ public class MainActivity extends Activity {
             case MotionEvent.ACTION_DOWN:
                 previousX = x;
                 previousY = y;
+                renderer.setAutoMovement(false);
+                break;
+
+            case MotionEvent.ACTION_UP:
+                renderer.setAutoMovement(true);
                 break;
 
             case MotionEvent.ACTION_MOVE:

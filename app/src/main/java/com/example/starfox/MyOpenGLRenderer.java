@@ -13,9 +13,11 @@ public class MyOpenGLRenderer implements Renderer {
 	public Object3D object3D;
 	public Background background;
 	public WhiteDots whiteDots;
-	private float width, height, aspect, limitX, limitY;
+	private float width, height, aspect, limitX, limitY, time = 0.0f,
+			oscillationSpeed = 0.02f, oscillationAmplitude = 0.25f;
 	float Z = 1;
 	private Light light;
+	private boolean autoMovement = true;
 
 
 	public MyOpenGLRenderer(Context context){
@@ -102,6 +104,14 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glPopMatrix();
 
 		gl.glPushMatrix();// Reset model-view matrix ( NEW )
+		float oscillation = 0.0f;
+
+		if (autoMovement) {
+			time += oscillationSpeed;
+			oscillation = (float) Math.sin(time) * oscillationAmplitude;
+		}
+
+		object3D.setY(object3D.getY() + oscillation * oscillationSpeed);
 		gl.glTranslatef(object3D.getX(), object3D.getY(), 0);
 		gl.glScalef(object3D.getScale(), object3D.getScale(), object3D.getScale());
 		object3D.draw(gl);
@@ -157,5 +167,9 @@ public class MyOpenGLRenderer implements Renderer {
 			object3D.setY(-limitY);
 		else if (object3D.getY() > limitY)
 			object3D.setY(limitY);
+	}
+
+	public void setAutoMovement(boolean autoMovement) {
+		this.autoMovement = autoMovement;
 	}
 }
