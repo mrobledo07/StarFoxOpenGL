@@ -12,16 +12,17 @@ public class MyOpenGLRenderer implements Renderer {
 	public Context context;
 	public Object3D object3D;
 	public Background background;
-	private float width, height;
+	public WhiteDots whiteDots;
+	private float width, height, aspect, limitX, limitY;
 	float Z = 1;
 	private Light light;
-	private float objectX = 0.0f, objectY = 0.0f;
 
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
 		this.object3D = new Object3D(context, R.raw.starfox_ship);
-		this.background = new Background((float)width/height);
+		this.background = new Background();
+		//this.whiteDots = new WhiteDots((float)width/height);
 	}
 
 
@@ -38,7 +39,6 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);  // nice perspective view
 		gl.glShadeModel(GL10.GL_SMOOTH);   // Enable smooth shading of color
 		gl.glDisable(GL10.GL_DITHER);      // Disable dithering for better performance
-
 
 		//Enable Lights
 		gl.glEnable(GL10.GL_LIGHTING);
@@ -63,7 +63,7 @@ public class MyOpenGLRenderer implements Renderer {
 		if (height == 0) height = 1;   // To prevent divide by zero
 		this.width = width;
 		this.height = height;
-		float aspect = (float) width / height;
+		this.aspect = (float) width / height;
 
 		background.setAspect(aspect);
 
@@ -76,11 +76,14 @@ public class MyOpenGLRenderer implements Renderer {
 		// Use perspective projection
 		GLU.gluPerspective(gl, 60, aspect, 0.1f, 100.f);
 
-
 		gl.glMatrixMode(GL10.GL_MODELVIEW);  // Select model-view matrix
 		gl.glLoadIdentity();                 // Reset
 
-		object3D.setScale(aspect < 1 ? 1.0f : aspect);
+		object3D.setScale(aspect < 1 ? 1.0f + 0.25f : aspect * 1.25f);
+		limitCalculation();
+		setLimitPosition();
+
+		//whiteDots.setScale(aspect < 1 ? 1.0f : aspect);
 	}
 
 	@Override
@@ -90,7 +93,7 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glLoadIdentity();
 
 		light.setPosition(new float[]{this.getZ(), -10, -10, 0});
-		GLU.gluLookAt(gl, 0, 0, 8.5f, 0f, 0f, 0f, 0f, 1f, 0f);
+		GLU.gluLookAt(gl, object3D.getX() / 4, object3D.getY() / 4, 8.5f, object3D.getX() / 4, object3D.getY() / 4, 0f, 0f, 1f, 0f);
 
 		// Draw background
 		gl.glPushMatrix();
@@ -99,10 +102,16 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glPopMatrix();
 
 		gl.glPushMatrix();// Reset model-view matrix ( NEW )
-		gl.glTranslatef(objectX, objectY, 0);
+		gl.glTranslatef(object3D.getX(), object3D.getY(), 0);
 		gl.glScalef(object3D.getScale(), object3D.getScale(), object3D.getScale());
 		object3D.draw(gl);
 		gl.glPopMatrix();
+
+		/*gl.glPushMatrix();// Reset model-view matrix ( NEW )
+		gl.glTranslatef(objectX, objectY, 0);
+		gl.glScalef(whiteDots.getScale(), whiteDots.getScale(), whiteDots.getScale());
+		whiteDots.draw(gl);
+		gl.glPopMatrix();*/
 
 	}
 
@@ -123,20 +132,30 @@ public class MyOpenGLRenderer implements Renderer {
 	}
 
 	public void moveObject(float deltaX, float deltaY) {
-		objectX += deltaX;
-		objectY += deltaY;
+		object3D.setPosition(object3D.getX() + deltaX, object3D.getY() + deltaY);
+		limitCalculation();
+		object3D.setPosition(Math.max(-limitX, Math.min(limitX, object3D.getX())), Math.max(-limitY, Math.min(limitY, object3D.getY())));
+	}
 
-		float limitX, limitY;
-		float aspect = width / height;
+	public void limitCalculation() {
 		if (aspect > 1.0f) {
 			limitX = aspect * 5;
-			limitY = aspect * 2;
+			limitY = aspect * 3;
 		} else {
 			limitX = aspect * 5;
 			limitY = aspect * 10;
 		}
+	}
 
-		objectX = Math.max(-limitX, Math.min(limitX, objectX));
-		objectY = Math.max(-limitY, Math.min(limitY, objectY));
+	public void setLimitPosition() {
+		if (object3D.getX() < -limitX)
+			object3D.setX(-limitX);
+		else if (object3D.getX() > limitX)
+			object3D.setX(limitX);
+
+		if (object3D.getY() < -limitY)
+			object3D.setY(-limitY);
+		else if (object3D.getY() > limitY)
+			object3D.setY(limitY);
 	}
 }

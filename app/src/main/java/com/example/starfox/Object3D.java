@@ -39,6 +39,7 @@ public class Object3D {
     int numFaceIndexs = 0;
 
     private float scale = 1.0f;
+    private float objectX = 0.0f, objectY = 0.0f;
 
     public Object3D(Context ctx, int filenameId) {
 
@@ -188,5 +189,27 @@ public class Object3D {
 
     public float getScale() {
         return this.scale;
+    }
+
+    public void setPosition(float x, float y) {
+    	this.objectX = x;
+    	this.objectY = y;
+    }
+
+    public void setX(float x) {
+        this.objectX = x;
+
+    }
+
+    public void setY(float y) {
+        this.objectY = y;
+    }
+
+    public float getX() {
+    	return this.objectX;
+    }
+
+    public float getY() {
+        return this.objectY;
     }
 }

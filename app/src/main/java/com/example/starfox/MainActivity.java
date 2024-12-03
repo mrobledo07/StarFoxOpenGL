@@ -83,7 +83,6 @@ public class MainActivity extends Activity {
                 deltaY = -deltaY;
 
                 renderer.moveObject(deltaX, deltaY);
-
                 previousX = x;
                 previousY = y;
                 break;

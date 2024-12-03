@@ -17,29 +17,13 @@ import javax.microedition.khronos.opengles.GL10;
 public class Background {
     private FloatBuffer vertexBuffer; // Buffer for vertex-array
     private FloatBuffer texBuffer;    // Buffer for texture-coords-array (NEW)
-
-
     private float[] vertices;
-
-    private float[] texCoords = { // Texture coords
-            0.0f, 1.0f,  // A. left-bottom (NEW)
-            1.0f, 1.0f,  // B. right-bottom (NEW)
-            0.0f, 0.0f,  // C. left-top (NEW)
-            1.0f, 0.0f   // D. right-top (NEW)
-    };
+    private float[] texCoords;
     int[] textureIDs = new int[1];   // Array for 1 texture-ID (NEW)
     private short[] indices = { 0, 1, 2, 1, 3, 2 };
     private ShortBuffer indexBuffer;
 
-    public Background(float aspect) {
-        this.setAspect(aspect);
-
-        // Setup texture-coords-array buffer, in float. An float has 4 bytes (NEW)
-        ByteBuffer tbb = ByteBuffer.allocateDirect(texCoords.length * 4);
-        tbb.order(ByteOrder.nativeOrder());
-        texBuffer = tbb.asFloatBuffer();
-        texBuffer.put(texCoords);
-        texBuffer.position(0);
+    public Background() {
 
         ByteBuffer ibb = ByteBuffer.allocateDirect(indices.length * 2);
         ibb.order(ByteOrder.nativeOrder());
@@ -51,17 +35,29 @@ public class Background {
     public void setAspect(float aspect) {
         if (aspect > 1.0f) {
             vertices = new float[]{
-                    -aspect * 6,  -aspect*3, 0.0f, // A. left-bottom
-                    aspect * 6,  -aspect*3, 0.0f,  // B. right-bottom
-                    -aspect * 6, aspect*3, 0.0f,  // C. left-top
-                    aspect * 6, aspect*3, 0.0f    // D. right-top
+                    -aspect * 7.5f,  -aspect * 7.5f, 0.0f, // A. left-bottom
+                    aspect * 7.5f,  -aspect * 7.5f, 0.0f,  // B. right-bottom
+                    -aspect * 7.5f, aspect * 7.5f, 0.0f,  // C. left-top
+                    aspect * 7.5f, aspect * 7.5f, 0.0f    // D. right-top
+            };
+            texCoords = new float[]{ // Texture coords
+                        0.0f, 1.0f,  // A. left-bottom (NEW)
+                        1.0f, 1.0f,  // B. right-bottom (NEW)
+                        0.0f, 0.25f,  // C. left-top (NEW)
+                        1.0f, 0.25f   // D. right-top (NEW)
             };
         } else {
             vertices = new float[]{
-                    -aspect * 10, -aspect * 15, 0.0f, // A. left-bottom
-                    aspect * 10, -aspect * 15, 0.0f,  // B. right-bottom
-                    -aspect * 10, aspect * 15, 0.0f,  // C. left-top
-                    aspect * 10, aspect * 15, 0.0f    // D. right-top
+                    -aspect * 15, -aspect * 15, 0.0f, // A. left-bottom
+                    aspect * 15, -aspect * 15, 0.0f,  // B. right-bottom
+                    -aspect * 15, aspect * 15, 0.0f,  // C. left-top
+                    aspect * 15, aspect * 15, 0.0f    // D. right-top
+            };
+            texCoords = new float[]{ // Texture coords
+                    0.0f, 1.0f,  // A. left-bottom (NEW)
+                    1.0f, 1.0f,  // B. right-bottom (NEW)
+                    0.0f, 0.25f,  // C. left-top (NEW)
+                    1.0f, 0.25f   // D. right-top (NEW)
             };
         }
 
@@ -71,6 +67,14 @@ public class Background {
         vertexBuffer = vbb.asFloatBuffer();
         vertexBuffer.put(vertices);         // Copiar los datos al buffer
         vertexBuffer.position(0);           // Rewind
+
+        // Setup texture-coords-array buffer, in float. An float has 4 bytes (NEW)
+        ByteBuffer tbb = ByteBuffer.allocateDirect(texCoords.length * 4);
+        tbb.order(ByteOrder.nativeOrder());
+        texBuffer = tbb.asFloatBuffer();
+        texBuffer.put(texCoords);
+        texBuffer.position(0);
+
     }
 
     public void loadTexture(GL10 gl, Context context) {
