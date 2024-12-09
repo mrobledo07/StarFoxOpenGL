@@ -15,58 +15,41 @@ import java.nio.ShortBuffer;
 import javax.microedition.khronos.opengles.GL10;
 
 public class Background {
-    private FloatBuffer vertexBuffer; // Buffer for vertex-array
-    private FloatBuffer texBuffer;    // Buffer for texture-coords-array (NEW)
-    private float[] vertices;
-    private float[] texCoords;
+    private final FloatBuffer vertexBuffer; // Buffer for vertex-array
+    private final FloatBuffer texBuffer;    // Buffer for texture-coords-array (NEW)
     int[] textureIDs = new int[1];   // Array for 1 texture-ID (NEW)
-    private short[] indices = { 0, 1, 2, 1, 3, 2 };
-    private ShortBuffer indexBuffer;
+    private final short[] indices = { 0, 1, 2, 1, 3, 2 };
+    private final ShortBuffer indexBuffer;
 
     public Background() {
+        // A. left-bottom
+        // B. right-bottom
+        // C. left-top
+        // D. right-top
+        float[] vertices = new float[]{
+                -60f, -45f, 0.0f, // A. left-bottom
+                60f, -45f, 0.0f,  // B. right-bottom
+                -60f, 45f, 0.0f,  // C. left-top
+                60f, 45f, 0.0f    // D. right-top
+        };
 
-        ByteBuffer ibb = ByteBuffer.allocateDirect(indices.length * 2);
-        ibb.order(ByteOrder.nativeOrder());
-        indexBuffer = ibb.asShortBuffer();
-        indexBuffer.put(indices);
-        indexBuffer.position(0);
-    }
+        // Texture coords
+        // A. left-bottom (NEW)
+        // B. right-bottom (NEW)
+        // C. left-top (NEW)
+        // D. right-top (NEW)
+        float[] texCoords = new float[]{ // Texture coords
+                0.0f, 1.0f,  // A. left-bottom (NEW)
+                1.0f, 1.0f,  // B. right-bottom (NEW)
+                0.0f, 0.35f,  // C. left-top (NEW)
+                1.0f, 0.35f   // D. right-top (NEW)
+        };
 
-    public void setAspect(float aspect) {
-        if (aspect > 1.0f) {
-            vertices = new float[]{
-                    -aspect * 7.5f,  -aspect * 7.5f, 0.0f, // A. left-bottom
-                    aspect * 7.5f,  -aspect * 7.5f, 0.0f,  // B. right-bottom
-                    -aspect * 7.5f, aspect * 7.5f, 0.0f,  // C. left-top
-                    aspect * 7.5f, aspect * 7.5f, 0.0f    // D. right-top
-            };
-            texCoords = new float[]{ // Texture coords
-                        0.0f, 1.0f,  // A. left-bottom (NEW)
-                        1.0f, 1.0f,  // B. right-bottom (NEW)
-                        0.0f, 0.25f,  // C. left-top (NEW)
-                        1.0f, 0.25f   // D. right-top (NEW)
-            };
-        } else {
-            vertices = new float[]{
-                    -aspect * 15, -aspect * 15, 0.0f, // A. left-bottom
-                    aspect * 15, -aspect * 15, 0.0f,  // B. right-bottom
-                    -aspect * 15, aspect * 15, 0.0f,  // C. left-top
-                    aspect * 15, aspect * 15, 0.0f    // D. right-top
-            };
-            texCoords = new float[]{ // Texture coords
-                    0.0f, 1.0f,  // A. left-bottom (NEW)
-                    1.0f, 1.0f,  // B. right-bottom (NEW)
-                    0.0f, 0.25f,  // C. left-top (NEW)
-                    1.0f, 0.25f   // D. right-top (NEW)
-            };
-        }
-
-        // Reasignar el buffer de vértices
         ByteBuffer vbb = ByteBuffer.allocateDirect(vertices.length * 4);
-        vbb.order(ByteOrder.nativeOrder()); // Usar el orden de bytes nativo
+        vbb.order(ByteOrder.nativeOrder());
         vertexBuffer = vbb.asFloatBuffer();
-        vertexBuffer.put(vertices);         // Copiar los datos al buffer
-        vertexBuffer.position(0);           // Rewind
+        vertexBuffer.put(vertices);
+        vertexBuffer.position(0);
 
         // Setup texture-coords-array buffer, in float. An float has 4 bytes (NEW)
         ByteBuffer tbb = ByteBuffer.allocateDirect(texCoords.length * 4);
@@ -75,6 +58,11 @@ public class Background {
         texBuffer.put(texCoords);
         texBuffer.position(0);
 
+        ByteBuffer ibb = ByteBuffer.allocateDirect(indices.length * 2);
+        ibb.order(ByteOrder.nativeOrder());
+        indexBuffer = ibb.asShortBuffer();
+        indexBuffer.put(indices);
+        indexBuffer.position(0);
     }
 
     public void loadTexture(GL10 gl, Context context) {
@@ -104,7 +92,7 @@ public class Background {
     }
 
     public void draw(GL10 gl) {
-        gl.glDisable(GL10.GL_DEPTH_TEST); // Deshabilitar profundidad para que el fondo no bloquee otros objetos
+        gl.glDisable(GL10.GL_DEPTH_TEST);
         gl.glDisable(GL10.GL_LIGHTING);
         gl.glBindTexture(GL10.GL_TEXTURE_2D, textureIDs[0]);
         gl.glEnable(GL10.GL_TEXTURE_2D);
@@ -118,6 +106,6 @@ public class Background {
         gl.glDisable(GL10.GL_TEXTURE_2D);
         gl.glBindTexture(GL10.GL_TEXTURE_2D, 0);
         gl.glEnable(GL10.GL_LIGHTING);
-        gl.glEnable(GL10.GL_DEPTH_TEST); // Rehabilitar profundidad
+        gl.glEnable(GL10.GL_DEPTH_TEST);
     }
 }

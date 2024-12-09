@@ -9,15 +9,13 @@ import java.util.List;
 import javax.microedition.khronos.opengles.GL10;
 
 public class WhiteDots {
-    private float aspect = 1.0f;
-    private List<float[]> groundPoints;
-    private static final int ROWS = 15;
-    private static final int COLUMNS = 25;
-    private static final int POINT_COUNT = ROWS * COLUMNS;
-    private static final float POINT_SPEED = 0.1f; // Velocidad del desplazamiento
-    private static final float Z_LIMIT = 5f; // Límite detrás de la cámara
-    private static final float START_Z = -20f; // Punto de inicio de los puntos
-    private float limitX, limitY;
+    private static List<float[]> groundPoints;
+    private static final int ROWS = 5;
+    private static final int COLUMNS = 10;
+    private static final float POINT_SPEED = 0.1f;
+    private static final float Z_LIMIT = 30f;
+    private static final float START_Z = 15f;
+    private static final float limitX = 7.5f;
 
     public WhiteDots() {
         groundPoints = new ArrayList<>();
@@ -26,40 +24,33 @@ public class WhiteDots {
 
     private void initializeGroundPoints() {
         groundPoints.clear();
-        float limitXDifference = limitX * 2 / COLUMNS; // Separación entre columnas
-        float limitZDifference = (Z_LIMIT - START_Z) / ROWS; // Separación entre filas
-        float xStart = -limitX;
+        float limitXDifference = limitX * 2 / COLUMNS;
+        float limitZDifference = (Z_LIMIT - START_Z) / ROWS;
+        float xStart = -limitX * 2;
 
         for (int i = 0; i < ROWS; i++) {
             float z = START_Z + i * limitZDifference;
             for (int j = 0; j < COLUMNS; j++) {
-                float x = xStart + j * limitXDifference * 10;
-                groundPoints.add(new float[]{x, -limitY, z});
+                float x = xStart + j * limitXDifference * 4;
+                groundPoints.add(new float[]{x, -3.5f, z});
             }
         }
     }
 
     public void draw(GL10 gl) {
         gl.glDisable(GL10.GL_LIGHTING);
-        gl.glPushMatrix();
-        // Restablece la matriz de modelo-vista
-        gl.glLoadIdentity();
-        // Configura el color de los puntos (blanco)
-        gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
         for (float[] point : groundPoints) {
             gl.glPushMatrix();
-            gl.glTranslatef(point[0], point[1], point[2]); // Posición del punto
-            drawPoint(gl); // Dibuja un punto
+            gl.glTranslatef(point[0], point[1], point[2]);
+            drawPoint(gl);
             gl.glPopMatrix();
         }
-
-        gl.glPopMatrix();
         gl.glEnable(GL10.GL_LIGHTING);
+        this.update();
     }
 
     private void drawPoint(GL10 gl) {
-        float size = 0.05f; // Tamaño del punto
+        float size = 0.05f;
         float[] vertices = {
                 -size, -size, 0,
                 size, -size, 0,
@@ -82,28 +73,11 @@ public class WhiteDots {
 
     public void update() {
         for (float[] point : groundPoints) {
-            point[2] += POINT_SPEED; // Mueve el punto hacia la cámara
-
-            // Si el punto pasa el límite, recíclalo al inicio
+            point[2] += POINT_SPEED;
             if (point[2] > Z_LIMIT) {
-                point[2] = START_Z; // Reposiciona al fondo
+                point[2] = START_Z;
             }
         }
     }
 
-    public void setAspect(float aspect) {
-        this.aspect = aspect;
-        if (aspect > 1.0f) {
-            limitX = aspect * 5;
-            limitY = aspect * 3;
-        } else {
-            limitX = aspect * 5;
-            limitY = aspect * 10;
-        }
-        initializeGroundPoints(); // Recalcular puntos según el nuevo aspecto
-    }
-
-    public float getAspect() {
-        return this.aspect;
-    }
 }

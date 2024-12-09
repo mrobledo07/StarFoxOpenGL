@@ -13,11 +13,9 @@ public class MyOpenGLRenderer implements Renderer {
 	public Object3D object3D;
 	public Background background;
 	public WhiteDots whiteDots;
-	private float width, height, aspect, time = 0.0f;
-
-    float Z = 1;
-	private Light light;
-	private boolean autoMovement = true;
+	private float time = 0.0f;
+    private boolean autoMovement = true;
+	private static final float limitX = 3.0f, limitY = 1.5f;
 
 
 	public MyOpenGLRenderer(Context context){
@@ -31,7 +29,7 @@ public class MyOpenGLRenderer implements Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);  // Set color's clear-value to black
+		gl.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);  // Set color's clear-value to black
 		gl.glClearDepthf(1.0f);            // Set depth's clear-value to farthest
 		gl.glEnable(GL10.GL_DEPTH_TEST);   // Enables depth-buffer for hidden surface removal
 		gl.glDepthFunc(GL10.GL_LEQUAL);    // The type of depth testing to do
@@ -51,8 +49,8 @@ public class MyOpenGLRenderer implements Renderer {
 		// Load background
 		background.loadTexture(gl, context);
 
-		light = new Light(gl, GL10.GL_LIGHT0);
-		light.setPosition(new float[]{0.0f, 0.0f, 1.0f, 0.0f});
+        Light light = new Light(gl, GL10.GL_LIGHT0);
+		light.setPosition(new float[]{0.0f, -10.0f, 10.0f, 0.0f});
 
 		light.setAmbientColor(new float[]{0.1f, 0.1f, 0.1f});
 		light.setDiffuseColor(new float[]{1, 1, 1});
@@ -61,11 +59,7 @@ public class MyOpenGLRenderer implements Renderer {
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		if (height == 0) height = 1;   // To prevent divide by zero
-		this.width = width;
-		this.height = height;
-		this.aspect = (float) width / height;
-
-		background.setAspect(aspect);
+		float aspect = (float) width / height;
 
 		// Set the viewport (display area) to cover the entire window
 		gl.glViewport(0, 0, width, height);
@@ -78,41 +72,23 @@ public class MyOpenGLRenderer implements Renderer {
 
 		gl.glMatrixMode(GL10.GL_MODELVIEW);  // Select model-view matrix
 		gl.glLoadIdentity();                 // Reset
-
-		object3D.setScale(aspect < 1 ? 1.0f + 0.25f : aspect * 1.25f);
-		adjustPositionToLimit();
-
-		whiteDots.setAspect(aspect);
 	}
 
-	@Override
+    @Override
 	public void onDrawFrame(GL10 gl) {
 		// Clear color and depth buffers using clear-value set earlier
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 		gl.glLoadIdentity();
 
-		light.setPosition(new float[]{this.getZ(), -10, -10, 0});
-		float divisorX = 1.5f;
-		float divisorY = 4.0f;
-		if (aspect > 1.0f) {
-			divisorX = 4.0f;
-			divisorY = 1.5f;
-		}
-		GLU.gluLookAt(gl, object3D.getX() / divisorX, object3D.getY() / divisorY, 8.5f, object3D.getX() / divisorX, object3D.getY() / divisorY, 0f, 0f, 1f, 0f);
+		float divisor = 5.0f;
+		GLU.gluLookAt(gl, object3D.getX() / divisor, object3D.getY() / divisor, 30, object3D.getX() / divisor, object3D.getY() / divisor, 0f, 0f, 1f, 0f);
 
-		// Draw background
-		gl.glPushMatrix();
-		gl.glTranslatef(0, 0, -1.5f);
 		background.draw(gl);
-		gl.glPopMatrix();
+		whiteDots.draw(gl);
 
 		float oscillation = 0.0f;
-        float oscillationSpeed = 0.02f;
+		float oscillationSpeed = 0.02f;
 		float oscillationAmplitude = 0.25f;
-
-		if (aspect > 1.0f) {
-			oscillationAmplitude = 0.5f;
-		}
 
         if (autoMovement) {
 			time += oscillationSpeed;
@@ -121,31 +97,10 @@ public class MyOpenGLRenderer implements Renderer {
 
 		moveObject(0, oscillation * oscillationSpeed);
 
-		gl.glPushMatrix();// Reset model-view matrix ( NEW )
-		gl.glTranslatef(object3D.getX(), object3D.getY(), 0);
-		gl.glScalef(object3D.getScale(), object3D.getScale(), object3D.getScale());
+		gl.glPushMatrix();
+		gl.glTranslatef(object3D.getX(), object3D.getY(), 27.5f);
 		object3D.draw(gl);
 		gl.glPopMatrix();
-
-		whiteDots.update();
-		whiteDots.draw(gl);
-
-	}
-
-	public float getHeight() {
-		return this.height;
-	}
-
-	public float getWidth() {
-		return this.width;
-	}
-
-	public float getZ() {
-		return Z;
-	}
-
-	public void setZ(float z) {
-		this.Z = z;
 	}
 
 	public void moveObject(float deltaX, float deltaY) {
@@ -154,15 +109,6 @@ public class MyOpenGLRenderer implements Renderer {
 	}
 
 	public void adjustPositionToLimit() {
-		float limitX, limitY;
-		if (aspect > 1.0f) {
-			limitX = aspect * 5;
-			limitY = aspect * 3;
-		} else {
-			limitX = aspect * 5;
-			limitY = aspect * 10;
-		}
-
 		if (object3D.getX() < -limitX)
 			object3D.setX(-limitX);
 		else if (object3D.getX() > limitX)

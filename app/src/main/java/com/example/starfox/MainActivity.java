@@ -7,13 +7,14 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+
 public class MainActivity extends Activity {
     /** Called when the activity is first created. */
     private MyOpenGLRenderer renderer;
     private MediaPlayer mediaPlayer;
     private float previousX, previousY;
-    private final float TOUCH_SCALE_FACTOR_X = 5.0f;
-    private final float TOUCH_SCALE_FACTOR_Y = 10.0f;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
 
@@ -62,6 +63,8 @@ public class MainActivity extends Activity {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
+
+        float TOUCH_SCALE_FACTOR = 250.0f;
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -75,19 +78,9 @@ public class MainActivity extends Activity {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                float aspect = (float) renderer.getWidth() / renderer.getHeight();
-                float deltaX, deltaY;
-                if (aspect > 1.0f) {
-                    deltaX = (x - previousX) / renderer.getWidth() * TOUCH_SCALE_FACTOR_Y * 3.0f;
-                    deltaY = (y - previousY) / renderer.getHeight() * TOUCH_SCALE_FACTOR_X * 2.0f;
-                } else {
-                    deltaX = (x - previousX) / renderer.getWidth() * TOUCH_SCALE_FACTOR_X;
-                    deltaY = (y - previousY) / renderer.getHeight() * TOUCH_SCALE_FACTOR_Y;
-                }
-
-
+                float deltaX = (x - previousX) / TOUCH_SCALE_FACTOR;
+                float deltaY = (y - previousY) / TOUCH_SCALE_FACTOR;
                 deltaY = -deltaY;
-
                 renderer.moveObject(deltaX, deltaY);
                 previousX = x;
                 previousY = y;
