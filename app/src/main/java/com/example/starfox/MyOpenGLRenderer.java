@@ -15,7 +15,7 @@ public class MyOpenGLRenderer implements Renderer {
 	public WhiteDots whiteDots;
 	private float time = 0.0f;
     private boolean autoMovement = true;
-	private static final float limitX = 3.0f, limitY = 1.5f;
+	private static final float limitX = 4.0f, limitY = 3.0f;
 
 
 	public MyOpenGLRenderer(Context context){
@@ -80,7 +80,7 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 		gl.glLoadIdentity();
 
-		float divisor = 5.0f;
+		float divisor = 1.5f;
 		GLU.gluLookAt(gl, object3D.getX() / divisor, object3D.getY() / divisor, 30, object3D.getX() / divisor, object3D.getY() / divisor, 0f, 0f, 1f, 0f);
 
 		background.draw(gl);

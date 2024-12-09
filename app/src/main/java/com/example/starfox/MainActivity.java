@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
         float x = event.getX();
         float y = event.getY();
 
-        float TOUCH_SCALE_FACTOR = 250.0f;
+        float TOUCH_SCALE_FACTOR = 200.0f;
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
