@@ -139,4 +139,9 @@ public class MyOpenGLRenderer implements Renderer {
 	public void setAutoMovement(boolean autoMovement) {
 		this.autoMovement = autoMovement;
 	}
+
+	public void unsetRotation(){
+		this.rotationX = 0.0f;
+		this.rotationY = 0.0f;
+	}
 }
