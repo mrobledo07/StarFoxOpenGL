@@ -15,8 +15,8 @@ public class MyOpenGLRenderer implements Renderer {
 	public WhiteDots whiteDots;
 	private float time = 0.0f;
     private boolean autoMovement = true;
-	private static final float limitX = 4.0f, limitY = 3.0f;
-	private static final float ROTATION_FACTOR = 100.0f;
+	private static final float limitX = 6.0f, limitY = 3.0f;
+	private static final float ROTATION_FACTOR = 150.0f;
 	private float rotationX = 0.0f, rotationY = 0.0f;
 
 	public MyOpenGLRenderer(Context context){
@@ -27,10 +27,9 @@ public class MyOpenGLRenderer implements Renderer {
 	}
 
 
-
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		gl.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);  // Set color's clear-value to black
+		gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set color's clear-value to black
 		gl.glClearDepthf(1.0f);            // Set depth's clear-value to farthest
 		gl.glEnable(GL10.GL_DEPTH_TEST);   // Enables depth-buffer for hidden surface removal
 		gl.glDepthFunc(GL10.GL_LEQUAL);    // The type of depth testing to do
@@ -50,10 +49,9 @@ public class MyOpenGLRenderer implements Renderer {
 		// Load background
 		background.loadTexture(gl, context);
 
-        Light light = new Light(gl, GL10.GL_LIGHT0);
+		Light light = new Light(gl, GL10.GL_LIGHT0);
 		light.setPosition(new float[]{0.0f, -10.0f, 10.0f, 0.0f});
-
-		light.setAmbientColor(new float[]{0.1f, 0.1f, 0.1f});
+		light.setAmbientColor(new float[]{1f, 1f, 1f});
 		light.setDiffuseColor(new float[]{1, 1, 1});
 	}
 
@@ -98,12 +96,29 @@ public class MyOpenGLRenderer implements Renderer {
 
 		oscillate(oscillation * oscillationSpeed);
 
+		// Draw shadow
+		gl.glPushMatrix();
+		float shadowScale = Math.max(0.0f, 1.0f - (object3D.getY() / 4));
+		gl.glDisable(GL10.GL_LIGHTING);
+		gl.glTranslatef(object3D.getX(), -3.5f, 27.0f);
+		gl.glScalef(shadowScale, shadowScale, 1.0f);
+		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
+		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
+		object3D.draw(gl);
+		gl.glEnable(GL10.GL_LIGHTING);
+		gl.glPopMatrix();
+
+		// Draw object
 		gl.glPushMatrix();
 		gl.glTranslatef(object3D.getX(), object3D.getY(), 27.5f);
-		gl.glRotatef(rotationY,1,0,0);
-		gl.glRotatef(-rotationX,0,0,1);
+		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
+		gl.glRotatef(rotationY, 1.0f, 0.0f, 0.0f);    // Vertical movement
+		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
 		object3D.draw(gl);
 		gl.glPopMatrix();
+
+		rotationX = 0.0f;
+		rotationY = 0.0f;
 	}
 
 	public void oscillate(float deltaY) {
@@ -119,15 +134,8 @@ public class MyOpenGLRenderer implements Renderer {
 	}
 
 	public void adjustPositionToLimit() {
-		if (object3D.getX() < -limitX)
-			object3D.setX(-limitX);
-		else if (object3D.getX() > limitX)
-			object3D.setX(limitX);
-
-		if (object3D.getY() < -limitY)
-			object3D.setY(-limitY);
-		else if (object3D.getY() > limitY)
-			object3D.setY(limitY);
+		object3D.setX(Math.max(Math.min(object3D.getX(), limitX), -limitX));
+		object3D.setY(Math.max(Math.min(object3D.getY(), limitY), -limitY));
 	}
 
 	public void setAutoMovement(boolean autoMovement) {

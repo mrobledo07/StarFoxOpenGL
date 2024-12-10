@@ -151,7 +151,7 @@ public class Object3D {
     public void draw(GL10 gl) {
         // Enabled the vertices buffer for writing and to be used during
         // rendering.
-        gl.glColor4f(1,1,1,1);
+        gl.glColor4f(0,0,0,1);
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         if(textureEnabled) gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 
