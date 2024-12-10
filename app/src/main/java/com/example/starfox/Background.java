@@ -74,7 +74,7 @@ public class Background {
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
 
         // Construct an input stream to texture image "res\drawable\nehe.png"
-        InputStream istream = context.getResources().openRawResource(R.raw.corneria_bg);
+        InputStream istream = context.getResources().openRawResource(R.raw.corneria_route_bg);
 
         Bitmap bitmap;
         try {

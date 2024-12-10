@@ -21,6 +21,7 @@ public class MyOpenGLRenderer implements Renderer {
 	private float targetRotationX = 0.0f, targetRotationY = 0.0f;
 	private static final float SMOOTH_FACTOR = 0.1f;
 	private float deltaX = 0.0f;
+	private boolean cameraRotation = false;
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
@@ -82,8 +83,20 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 		gl.glLoadIdentity();
 
+		if (!cameraRotation && this.deltaX != 0.0f) {
+			float deltaAbs = Math.abs(deltaX);
+			deltaAbs -= 0.01f;
+			if (Math.abs(deltaAbs) < 0.01f) {
+				this.deltaX = 0.0f;
+			} else {
+				this.deltaX = deltaAbs * Math.signum(deltaX);
+			}
+		}
+
+		System.out.println("DeltaX: " + deltaX);
+		System.out.println("DeltaX boolean rotation: " + cameraRotation);
 		float divisor = 1.5f;
-		GLU.gluLookAt(gl, object3D.getX() / divisor, object3D.getY() / divisor, 30, object3D.getX() / divisor, object3D.getY() / divisor, 0f, deltaX / 2.5f, 1f, 0f);
+		GLU.gluLookAt(gl, object3D.getX() / divisor, object3D.getY() / divisor, 30, object3D.getX() / divisor, object3D.getY() / divisor, 0f, -deltaX / 5, 1f, 0f);
 
 		background.draw(gl);
 		whiteDots.draw(gl);
@@ -141,7 +154,8 @@ public class MyOpenGLRenderer implements Renderer {
 		adjustPositionToLimit();
 		targetRotationX = Math.max(Math.min(deltaX,25),-25) * ROTATION_FACTOR;
 		targetRotationY = Math.max(Math.min(deltaY,25),-25) * ROTATION_FACTOR;
-		this.deltaX = deltaX;
+		this.deltaX = (deltaX - object3D.getX()) * SMOOTH_FACTOR;
+		cameraRotation = true;
 	}
 
 	public void adjustPositionToLimit() {
@@ -151,6 +165,10 @@ public class MyOpenGLRenderer implements Renderer {
 
 	public void setAutoMovement(boolean autoMovement) {
 		this.autoMovement = autoMovement;
+	}
+
+	public void unsetCameraRotation() {
+		this.cameraRotation = false;
 	}
 
 	public void unsetRotation(){

@@ -76,6 +76,7 @@ public class MainActivity extends Activity {
             case MotionEvent.ACTION_UP:
                 renderer.setAutoMovement(true);
                 renderer.unsetRotation();
+                renderer.unsetCameraRotation();
                 break;
 
             case MotionEvent.ACTION_MOVE:
