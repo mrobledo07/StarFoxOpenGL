@@ -16,7 +16,8 @@ public class MyOpenGLRenderer implements Renderer {
 	private float time = 0.0f;
     private boolean autoMovement = true;
 	private static final float limitX = 4.0f, limitY = 3.0f;
-
+	private static final float ROTATION_FACTOR = 100.0f;
+	private float rotationX = 0.0f, rotationY = 0.0f;
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
@@ -95,17 +96,26 @@ public class MyOpenGLRenderer implements Renderer {
             oscillation = (float) Math.sin(time) * oscillationAmplitude;
 		}
 
-		moveObject(0, oscillation * oscillationSpeed);
+		oscillate(oscillation * oscillationSpeed);
 
 		gl.glPushMatrix();
 		gl.glTranslatef(object3D.getX(), object3D.getY(), 27.5f);
+		gl.glRotatef(rotationY,1,0,0);
+		gl.glRotatef(-rotationX,0,0,1);
 		object3D.draw(gl);
 		gl.glPopMatrix();
+	}
+
+	public void oscillate(float deltaY) {
+		object3D.setPosition(object3D.getX(), object3D.getY() + deltaY);
+		adjustPositionToLimit();
 	}
 
 	public void moveObject(float deltaX, float deltaY) {
 		object3D.setPosition(object3D.getX() + deltaX, object3D.getY() + deltaY);
 		adjustPositionToLimit();
+		rotationX = Math.max(Math.min(deltaX,25),-25) * ROTATION_FACTOR;
+		rotationY = Math.max(Math.min(deltaY,25),-25) * ROTATION_FACTOR;
 	}
 
 	public void adjustPositionToLimit() {
