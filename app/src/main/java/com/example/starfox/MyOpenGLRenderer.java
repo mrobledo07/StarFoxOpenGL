@@ -20,6 +20,7 @@ public class MyOpenGLRenderer implements Renderer {
 	private float rotationX = 0.0f, rotationY = 0.0f;
 	private float targetRotationX = 0.0f, targetRotationY = 0.0f;
 	private static final float SMOOTH_FACTOR = 0.1f;
+	private float deltaX = 0.0f;
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
@@ -82,7 +83,7 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glLoadIdentity();
 
 		float divisor = 1.5f;
-		GLU.gluLookAt(gl, object3D.getX() / divisor, object3D.getY() / divisor, 30, object3D.getX() / divisor, object3D.getY() / divisor, 0f, 0f, 1f, 0f);
+		GLU.gluLookAt(gl, object3D.getX() / divisor, object3D.getY() / divisor, 30, object3D.getX() / divisor, object3D.getY() / divisor, 0f, deltaX / 2.5f, 1f, 0f);
 
 		background.draw(gl);
 		whiteDots.draw(gl);
@@ -107,7 +108,7 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glTranslatef(object3D.getX(), -3f, 27.0f);
 		gl.glScalef(shadowScale, shadowScale, 1.0f);
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
-		gl.glRotatef(-rotationY, 0.0f, 1.0f, 0.0f);   // Horizontal movement
+		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
 		gl.glScalef(1, 0, 1);
 		object3D.draw(gl);
 		gl.glEnable(GL10.GL_LIGHTING);
@@ -140,6 +141,7 @@ public class MyOpenGLRenderer implements Renderer {
 		adjustPositionToLimit();
 		targetRotationX = Math.max(Math.min(deltaX,25),-25) * ROTATION_FACTOR;
 		targetRotationY = Math.max(Math.min(deltaY,25),-25) * ROTATION_FACTOR;
+		this.deltaX = deltaX;
 	}
 
 	public void adjustPositionToLimit() {
