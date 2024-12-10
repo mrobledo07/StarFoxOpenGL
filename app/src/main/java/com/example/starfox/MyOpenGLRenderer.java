@@ -18,6 +18,8 @@ public class MyOpenGLRenderer implements Renderer {
 	private static final float limitX = 6.0f, limitY = 2.5f;
 	private static final float ROTATION_FACTOR = 150.0f;
 	private float rotationX = 0.0f, rotationY = 0.0f;
+	private float targetRotationX = 0.0f, targetRotationY = 0.0f;
+	private static final float SMOOTH_FACTOR = 0.1f;
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
@@ -96,6 +98,8 @@ public class MyOpenGLRenderer implements Renderer {
 
 		oscillate(oscillation * oscillationSpeed);
 
+		updateSmoothMotion();
+
 		// Draw shadow
 		gl.glPushMatrix();
 		float shadowScale = Math.max(0.0f, 1.0f - (object3D.getY() / 4));
@@ -103,7 +107,7 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glTranslatef(object3D.getX(), -3f, 27.0f);
 		gl.glScalef(shadowScale, shadowScale, 1.0f);
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
-		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
+		gl.glRotatef(-rotationY, 0.0f, 1.0f, 0.0f);   // Horizontal movement
 		gl.glScalef(1, 0, 1);
 		object3D.draw(gl);
 		gl.glEnable(GL10.GL_LIGHTING);
@@ -124,11 +128,18 @@ public class MyOpenGLRenderer implements Renderer {
 		adjustPositionToLimit();
 	}
 
+	private void updateSmoothMotion() {
+		rotationX += (targetRotationX - rotationX) * SMOOTH_FACTOR;
+		rotationY += (targetRotationY - rotationY) * SMOOTH_FACTOR;
+		rotationX = Math.max(Math.min(rotationX, 25), -25);
+		rotationY = Math.max(Math.min(rotationY, 25), -25);
+	}
+
 	public void moveObject(float deltaX, float deltaY) {
 		object3D.setPosition(object3D.getX() + deltaX, object3D.getY() + deltaY);
 		adjustPositionToLimit();
-		rotationX = Math.max(Math.min(deltaX,25),-25) * ROTATION_FACTOR;
-		rotationY = Math.max(Math.min(deltaY,25),-25) * ROTATION_FACTOR;
+		targetRotationX = Math.max(Math.min(deltaX,25),-25) * ROTATION_FACTOR;
+		targetRotationY = Math.max(Math.min(deltaY,25),-25) * ROTATION_FACTOR;
 	}
 
 	public void adjustPositionToLimit() {
