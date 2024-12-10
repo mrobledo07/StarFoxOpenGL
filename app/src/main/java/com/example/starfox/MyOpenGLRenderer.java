@@ -117,9 +117,6 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
 		object3D.draw(gl);
 		gl.glPopMatrix();
-
-		rotationX = 0.0f;
-		rotationY = 0.0f;
 	}
 
 	public void oscillate(float deltaY) {
