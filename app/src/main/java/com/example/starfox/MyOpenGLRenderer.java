@@ -15,7 +15,7 @@ public class MyOpenGLRenderer implements Renderer {
 	public WhiteDots whiteDots;
 	private float time = 0.0f;
     private boolean autoMovement = true;
-	private static final float limitX = 6.0f, limitY = 3.0f;
+	private static final float limitX = 6.0f, limitY = 2.5f;
 	private static final float ROTATION_FACTOR = 150.0f;
 	private float rotationX = 0.0f, rotationY = 0.0f;
 
@@ -100,10 +100,11 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glPushMatrix();
 		float shadowScale = Math.max(0.0f, 1.0f - (object3D.getY() / 4));
 		gl.glDisable(GL10.GL_LIGHTING);
-		gl.glTranslatef(object3D.getX(), -3.5f, 27.0f);
+		gl.glTranslatef(object3D.getX(), -3f, 27.0f);
 		gl.glScalef(shadowScale, shadowScale, 1.0f);
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
+		gl.glScalef(1, 0, 1);
 		object3D.draw(gl);
 		gl.glEnable(GL10.GL_LIGHTING);
 		gl.glPopMatrix();
