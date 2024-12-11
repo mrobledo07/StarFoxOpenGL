@@ -129,6 +129,10 @@ public class MyOpenGLRenderer implements Renderer {
 
 		// Draw object
 		gl.glPushMatrix();
+		if (autoMovement) {
+			// put object in the center of the screen slowly
+			object3D.setPosition(object3D.getX() - object3D.getX() * 0.01f, object3D.getY() - object3D.getY() * 0.01f);
+		}
 		gl.glTranslatef(object3D.getX(), object3D.getY(), 27.5f);
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
 		gl.glRotatef(rotationY, 1.0f, 0.0f, 0.0f);    // Vertical movement
@@ -150,12 +154,18 @@ public class MyOpenGLRenderer implements Renderer {
 	}
 
 	public void moveObject(float deltaX, float deltaY) {
+		float objectX = object3D.getX();
 		object3D.setPosition(object3D.getX() + deltaX, object3D.getY() + deltaY);
+		float newObjectX = object3D.getX();
 		adjustPositionToLimit();
 		targetRotationX = Math.max(Math.min(deltaX,25),-25) * ROTATION_FACTOR;
 		targetRotationY = Math.max(Math.min(deltaY,25),-25) * ROTATION_FACTOR;
-		this.deltaX = (deltaX - object3D.getX()) * SMOOTH_FACTOR;
-		cameraRotation = true;
+
+		if (objectX != newObjectX) {
+			this.deltaX = (deltaX - object3D.getX()) * SMOOTH_FACTOR;
+			cameraRotation = true;
+		}
+
 	}
 
 	public void adjustPositionToLimit() {

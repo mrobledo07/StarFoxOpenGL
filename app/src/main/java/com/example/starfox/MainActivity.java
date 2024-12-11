@@ -71,12 +71,14 @@ public class MainActivity extends Activity {
                 previousX = x;
                 previousY = y;
                 renderer.setAutoMovement(false);
+                System.out.println("ACTION DOWN");
                 break;
 
             case MotionEvent.ACTION_UP:
                 renderer.setAutoMovement(true);
                 renderer.unsetRotation();
                 renderer.unsetCameraRotation();
+                System.out.println("ACTION UP");
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -86,6 +88,7 @@ public class MainActivity extends Activity {
                 renderer.moveObject(deltaX, deltaY);
                 previousX = x;
                 previousY = y;
+                System.out.println("ACTION MOVE");
                 break;
         }
         return true;
