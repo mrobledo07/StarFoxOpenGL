@@ -13,6 +13,9 @@ public class MyOpenGLRenderer implements Renderer {
 	public Object3D object3D;
 	public Background background;
 	public WhiteDots whiteDots;
+
+	public Background shield;
+
 	private float time = 0.0f;
     private boolean autoMovement = true;
 	private static final float limitX = 6.0f, limitY = 2.5f;
@@ -27,6 +30,7 @@ public class MyOpenGLRenderer implements Renderer {
 		this.context = context;
 		this.object3D = new Object3D(context, R.raw.starfox_ship);
 		this.background = new Background();
+		this.shield = new Background();
 		this.whiteDots = new WhiteDots();
 	}
 
@@ -51,7 +55,9 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glEnable(GL10.GL_NORMALIZE);
 
 		// Load background
-		background.loadTexture(gl, context);
+		background.loadTexture(gl, context, R.raw.corneria_route_bg);
+
+		shield.loadTexture(gl, context, R.raw.shield);
 
 		Light light = new Light(gl, GL10.GL_LIGHT0);
 		light.setPosition(new float[]{0.0f, -10.0f, 10.0f, 0.0f});
@@ -67,11 +73,8 @@ public class MyOpenGLRenderer implements Renderer {
 		// Set the viewport (display area) to cover the entire window
 		gl.glViewport(0, 0, width, height);
 
-		// Setup perspective projection, with aspect ratio matches viewport
-		gl.glMatrixMode(GL10.GL_PROJECTION); // Select projection matrix
-		gl.glLoadIdentity();                 // Reset projection matrix
 		// Use perspective projection
-		GLU.gluPerspective(gl, 60, aspect, 0.1f, 100.f);
+		setPerspectiveProjection(gl, aspect);
 
 		gl.glMatrixMode(GL10.GL_MODELVIEW);  // Select model-view matrix
 		gl.glLoadIdentity();                 // Reset
@@ -93,11 +96,10 @@ public class MyOpenGLRenderer implements Renderer {
 			}
 		}
 
-		System.out.println("DeltaX: " + deltaX);
-		System.out.println("DeltaX boolean rotation: " + cameraRotation);
 		float divisor = 1.5f;
 		GLU.gluLookAt(gl, object3D.getX() / divisor, object3D.getY() / divisor, 30, object3D.getX() / divisor, object3D.getY() / divisor, 0f, -deltaX / 5, 1f, 0f);
 
+		gl.glBindTexture(GL10.GL_TEXTURE_2D, background.textureIDs[0]);
 		background.draw(gl);
 		whiteDots.draw(gl);
 
@@ -139,6 +141,42 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
 		object3D.draw(gl);
 		gl.glPopMatrix();
+
+
+		// Draw HUD
+
+		/*setOrthographicProjection(gl);
+		gl.glBindTexture(GL10.GL_TEXTURE_2D, shield.textureIDs[0]);
+		gl.glPushMatrix();
+		shield.draw(gl);
+		gl.glPopMatrix();*/
+
+	}
+
+	private void setPerspectiveProjection(GL10 gl, float aspect) {
+		gl.glClearDepthf(1.0f);            // Set depth's clear-value to farthest
+		gl.glEnable(GL10.GL_DEPTH_TEST);   // Enables depth-buffer for hidden surface removal
+		gl.glDepthMask(true);  // disable writes to Z-Buffer
+
+		gl.glMatrixMode(GL10.GL_PROJECTION); // Select projection matrix
+		gl.glLoadIdentity();                 // Reset projection matrix
+
+		// Use perspective projection
+		GLU.gluPerspective(gl, 60, aspect, 0.1f, 100.f);
+
+		gl.glMatrixMode(GL10.GL_MODELVIEW);  // Select model-view matrix
+		gl.glLoadIdentity();                 // Reset
+	}
+
+	private void setOrthographicProjection(GL10 gl){
+		gl.glMatrixMode(GL10.GL_PROJECTION);
+		gl.glLoadIdentity();
+		gl.glOrthof(-5,5,-4,4,-5,5);
+		gl.glDepthMask(false);  // disable writes to Z-Buffer
+		gl.glDisable(GL10.GL_DEPTH_TEST);  // disable depth-testing
+
+		gl.glMatrixMode(GL10.GL_MODELVIEW);
+		gl.glLoadIdentity();
 	}
 
 	public void oscillate(float deltaY) {
@@ -184,5 +222,7 @@ public class MyOpenGLRenderer implements Renderer {
 	public void unsetRotation(){
 		this.rotationX = 0.0f;
 		this.rotationY = 0.0f;
+		this.targetRotationX = 0.0f;
+		this.targetRotationY = 0.0f;
 	}
 }

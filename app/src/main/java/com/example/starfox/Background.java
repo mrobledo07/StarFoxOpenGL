@@ -65,7 +65,7 @@ public class Background {
         indexBuffer.position(0);
     }
 
-    public void loadTexture(GL10 gl, Context context) {
+    public void loadTexture(GL10 gl, Context context, int idTexture) {
         gl.glGenTextures(1, textureIDs, 0); // Generate texture-ID array
 
         gl.glBindTexture(GL10.GL_TEXTURE_2D, textureIDs[0]);   // Bind to texture ID
@@ -74,7 +74,7 @@ public class Background {
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
 
         // Construct an input stream to texture image "res\drawable\nehe.png"
-        InputStream istream = context.getResources().openRawResource(R.raw.corneria_route_bg);
+        InputStream istream = context.getResources().openRawResource(idTexture);
 
         Bitmap bitmap;
         try {
