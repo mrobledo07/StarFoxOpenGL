@@ -10,11 +10,10 @@ import android.opengl.GLU;
 public class MyOpenGLRenderer implements Renderer {
 
 	public Context context;
-	public Object3D object3D;
+	public Arwing arwing;
 	public Background background;
 	public WhiteDots whiteDots;
-
-	public Background shield;
+	public HUD hud;
 
 	private float time = 0.0f;
     private boolean autoMovement = true;
@@ -28,10 +27,10 @@ public class MyOpenGLRenderer implements Renderer {
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
-		this.object3D = new Object3D(context, R.raw.starfox_ship);
+		this.arwing = new Arwing(context, R.raw.starfox_ship);
 		this.background = new Background();
-		this.shield = new Background();
 		this.whiteDots = new WhiteDots();
+		this.hud = new HUD();
 	}
 
 
@@ -57,7 +56,7 @@ public class MyOpenGLRenderer implements Renderer {
 		// Load background
 		background.loadTexture(gl, context, R.raw.corneria_route_bg);
 
-		shield.loadTexture(gl, context, R.raw.shield);
+		hud.getLife().loadTexture(gl, context, R.raw.life);
 
 		Light light = new Light(gl, GL10.GL_LIGHT0);
 		light.setPosition(new float[]{0.0f, -10.0f, 10.0f, 0.0f});
@@ -97,7 +96,7 @@ public class MyOpenGLRenderer implements Renderer {
 		}
 
 		float divisor = 1.5f;
-		GLU.gluLookAt(gl, object3D.getX() / divisor, object3D.getY() / divisor, 30, object3D.getX() / divisor, object3D.getY() / divisor, 0f, -deltaX / 5, 1f, 0f);
+		GLU.gluLookAt(gl, arwing.getX() / divisor, arwing.getY() / divisor, 30, arwing.getX() / divisor, arwing.getY() / divisor, 0f, -deltaX / 5, 1f, 0f);
 
 		gl.glBindTexture(GL10.GL_TEXTURE_2D, background.textureIDs[0]);
 		background.draw(gl);
@@ -118,14 +117,14 @@ public class MyOpenGLRenderer implements Renderer {
 
 		// Draw shadow
 		gl.glPushMatrix();
-		float shadowScale = Math.max(0.0f, 1.0f - (object3D.getY() / 4));
+		float shadowScale = Math.max(0.0f, 1.0f - (arwing.getY() / 4));
 		gl.glDisable(GL10.GL_LIGHTING);
-		gl.glTranslatef(object3D.getX(), -3f, 27.0f);
+		gl.glTranslatef(arwing.getX(), -3f, 27.0f);
 		gl.glScalef(shadowScale, shadowScale, 1.0f);
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
 		gl.glScalef(1, 0, 1);
-		object3D.draw(gl);
+		arwing.draw(gl);
 		gl.glEnable(GL10.GL_LIGHTING);
 		gl.glPopMatrix();
 
@@ -133,22 +132,22 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glPushMatrix();
 		if (autoMovement) {
 			// put object in the center of the screen slowly
-			object3D.setPosition(object3D.getX() - object3D.getX() * 0.01f, object3D.getY() - object3D.getY() * 0.01f);
+			arwing.setPosition(arwing.getX() - arwing.getX() * 0.01f, arwing.getY() - arwing.getY() * 0.01f);
 		}
-		gl.glTranslatef(object3D.getX(), object3D.getY(), 27.5f);
+		gl.glTranslatef(arwing.getX(), arwing.getY(), 27.5f);
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
 		gl.glRotatef(rotationY, 1.0f, 0.0f, 0.0f);    // Vertical movement
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
-		object3D.draw(gl);
+		arwing.draw(gl);
 		gl.glPopMatrix();
 
 
 		// Draw HUD
 
 		/*setOrthographicProjection(gl);
-		gl.glBindTexture(GL10.GL_TEXTURE_2D, shield.textureIDs[0]);
+		gl.glBindTexture(GL10.GL_TEXTURE_2D, hud.getLife().textureIDs[0]);
 		gl.glPushMatrix();
-		shield.draw(gl);
+		hud.getLife().draw(gl);
 		gl.glPopMatrix();*/
 
 	}
@@ -180,7 +179,7 @@ public class MyOpenGLRenderer implements Renderer {
 	}
 
 	public void oscillate(float deltaY) {
-		object3D.setPosition(object3D.getX(), object3D.getY() + deltaY);
+		arwing.setPosition(arwing.getX(), arwing.getY() + deltaY);
 		adjustPositionToLimit();
 	}
 
@@ -192,23 +191,23 @@ public class MyOpenGLRenderer implements Renderer {
 	}
 
 	public void moveObject(float deltaX, float deltaY) {
-		float objectX = object3D.getX();
-		object3D.setPosition(object3D.getX() + deltaX, object3D.getY() + deltaY);
-		float newObjectX = object3D.getX();
+		float objectX = arwing.getX();
+		arwing.setPosition(arwing.getX() + deltaX, arwing.getY() + deltaY);
+		float newObjectX = arwing.getX();
 		adjustPositionToLimit();
 		targetRotationX = Math.max(Math.min(deltaX,25),-25) * ROTATION_FACTOR;
 		targetRotationY = Math.max(Math.min(deltaY,25),-25) * ROTATION_FACTOR;
 
 		if (objectX != newObjectX) {
-			this.deltaX = (deltaX - object3D.getX()) * SMOOTH_FACTOR;
+			this.deltaX = (deltaX - arwing.getX()) * SMOOTH_FACTOR;
 			cameraRotation = true;
 		}
 
 	}
 
 	public void adjustPositionToLimit() {
-		object3D.setX(Math.max(Math.min(object3D.getX(), limitX), -limitX));
-		object3D.setY(Math.max(Math.min(object3D.getY(), limitY), -limitY));
+		arwing.setX(Math.max(Math.min(arwing.getX(), limitX), -limitX));
+		arwing.setY(Math.max(Math.min(arwing.getY(), limitY), -limitY));
 	}
 
 	public void setAutoMovement(boolean autoMovement) {

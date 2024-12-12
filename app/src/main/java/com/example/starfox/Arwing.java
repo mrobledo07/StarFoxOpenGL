@@ -15,7 +15,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
 
-public class Object3D {
+public class Arwing {
 
     // Color enabled or not
     boolean colorEnabled = false;
@@ -41,7 +41,7 @@ public class Object3D {
     private float scale = 1.0f;
     private float objectX = 0.0f, objectY = 0.0f;
 
-    public Object3D(Context ctx, int filenameId) {
+    public Arwing(Context ctx, int filenameId) {
 
         try {
             String line;
