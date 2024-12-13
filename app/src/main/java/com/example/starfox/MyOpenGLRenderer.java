@@ -52,7 +52,7 @@ public class MyOpenGLRenderer implements Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Set color's clear-value to black
+        gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);  // Set color's clear-value to black
         gl.glClearDepthf(1.0f);            // Set depth's clear-value to farthest
         gl.glEnable(GL10.GL_DEPTH_TEST);   // Enables depth-buffer for hidden surface removal
         gl.glDepthFunc(GL10.GL_LEQUAL);    // The type of depth testing to do
