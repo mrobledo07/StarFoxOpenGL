@@ -5,15 +5,19 @@ import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
+
 
 public class MainActivity extends Activity {
     /** Called when the activity is first created. */
     private MyOpenGLRenderer renderer;
     private MediaPlayer mediaPlayer;
     private float previousX, previousY;
+    private GestureDetector gestureDetector;
+
 
 
     @Override
@@ -26,6 +30,14 @@ public class MainActivity extends Activity {
         mediaPlayer = MediaPlayer.create(this, R.raw.corneria_music);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(@NonNull MotionEvent e) {
+                renderer.setBoost();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -61,6 +73,7 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
         float x = event.getX();
         float y = event.getY();
 
@@ -77,6 +90,7 @@ public class MainActivity extends Activity {
                 renderer.setAutoMovement(true);
                 renderer.unsetRotation();
                 renderer.unsetCameraRotation();
+                renderer.unsetBoost();
                 break;
 
             case MotionEvent.ACTION_MOVE:

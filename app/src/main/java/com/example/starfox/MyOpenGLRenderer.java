@@ -29,6 +29,7 @@ public class MyOpenGLRenderer implements Renderer {
 	private float aspect;
 	private float boostVal = 1.0f;
 	private float boostVal2 = 0.0f;
+	private boolean boostState = false;
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
@@ -107,14 +108,14 @@ public class MyOpenGLRenderer implements Renderer {
 		float divisor = 1.5f;
 		GLU.gluLookAt(gl, arwing.getX() / divisor, arwing.getY() / divisor, 30, arwing.getX() / divisor, arwing.getY() / divisor, 0f, -deltaX / 5, 1f, 0f);
 
-		if (!autoMovement && boostVal > 0.0f) {
+		if (boostState && boostVal > 0.0f) {
 			boostVal -= 0.01f;
 			boostVal2 += 0.01f;
 			whiteDots.accelerate(0.01f);
 			((Boost) boost).accelerate(-0.01f);
 		}
 
-		if (!autoMovement && boostVal < 0.0f) {
+		if (boostState && boostVal < 0.0f) {
 			boostVal2 -= 0.01f;
 			if (boostVal2 < 0.0f) {
 				boostVal2 = 0.0f;
@@ -122,7 +123,7 @@ public class MyOpenGLRenderer implements Renderer {
 			whiteDots.accelerate(-0.01f);
 		}
 
-		if (autoMovement && boostVal < 1.0f) {
+		if (!boostState && boostVal < 1.0f) {
 			boostVal += 0.01f;
 			boostVal2 -= 0.01f;
 			if (boostVal2 < 0.0f) boostVal2 = 0.0f;
@@ -252,5 +253,13 @@ public class MyOpenGLRenderer implements Renderer {
 		this.rotationY = 0.0f;
 		this.targetRotationX = 0.0f;
 		this.targetRotationY = 0.0f;
+	}
+
+	public void setBoost() {
+		this.boostState = true;
+	}
+
+	public void unsetBoost() {
+		this.boostState = false;
 	}
 }
