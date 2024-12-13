@@ -28,6 +28,7 @@ public class MyOpenGLRenderer implements Renderer {
 	private boolean cameraRotation = false;
 	private float aspect;
 	private float boostVal = 1.0f;
+	private float boostVal2 = 0.0f;
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
@@ -106,26 +107,27 @@ public class MyOpenGLRenderer implements Renderer {
 		float divisor = 1.5f;
 		GLU.gluLookAt(gl, arwing.getX() / divisor, arwing.getY() / divisor, 30, arwing.getX() / divisor, arwing.getY() / divisor, 0f, -deltaX / 5, 1f, 0f);
 
-		if (boostVal > 0.0f) {
-			if (!autoMovement) {
-				boostVal -= 0.01f;
-				whiteDots.accelerate(0.01f);
-				((Boost) boost).accelerate(-0.01f);
-			}
-			if (autoMovement && boostVal < 1.0f) {
-				boostVal += 0.01f;
-				whiteDots.setSpeed(0.1f);
-				((Boost) boost).accelerate(0.01f);
-			}
-		} else {
-			if (autoMovement) {
-				boostVal += 0.01f;
-				whiteDots.setSpeed(0.1f);
-				((Boost) boost).accelerate(0.01f);
-			} else {
-				whiteDots.setSpeed(0.1f);
-			}
+		if (!autoMovement && boostVal > 0.0f) {
+			boostVal -= 0.01f;
+			boostVal2 += 0.01f;
+			whiteDots.accelerate(0.01f);
+			((Boost) boost).accelerate(-0.01f);
+		}
 
+		if (!autoMovement && boostVal < 0.0f) {
+			boostVal2 -= 0.01f;
+			if (boostVal2 < 0.0f) {
+				boostVal2 = 0.0f;
+			}
+			whiteDots.accelerate(-0.01f);
+		}
+
+		if (autoMovement && boostVal < 1.0f) {
+			boostVal += 0.01f;
+			boostVal2 -= 0.01f;
+			if (boostVal2 < 0.0f) boostVal2 = 0.0f;
+			whiteDots.accelerate(-0.01f);
+			((Boost) boost).accelerate(0.01f);
 		}
 
 		background.draw(gl);
@@ -145,7 +147,7 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glPushMatrix();
 		float shadowScale = Math.max(0.0f, 1.0f - (arwing.getY() / 4));
 		gl.glDisable(GL10.GL_LIGHTING);
-		gl.glTranslatef(arwing.getX(), -3f, 27.0f);
+		gl.glTranslatef(arwing.getX(), -3f, 27.5f - boostVal2);
 		gl.glScalef(shadowScale, shadowScale, 1.0f);
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
@@ -160,7 +162,7 @@ public class MyOpenGLRenderer implements Renderer {
 			// put object in the center of the screen slowly
 			arwing.setPosition(arwing.getX() - arwing.getX() * 0.01f, arwing.getY() - arwing.getY() * 0.01f);
 		}
-		gl.glTranslatef(arwing.getX(), arwing.getY(), 27.5f);
+		gl.glTranslatef(arwing.getX(), arwing.getY(), 27.5f - boostVal2);
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
 		gl.glRotatef(rotationY, 1.0f, 0.0f, 0.0f);    // Vertical movement
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
