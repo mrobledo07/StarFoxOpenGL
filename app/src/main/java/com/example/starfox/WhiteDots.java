@@ -12,10 +12,10 @@ public class WhiteDots {
     private static List<float[]> groundPoints;
     private static final int ROWS = 5;
     private static final int COLUMNS = 10;
-    private static final float POINT_SPEED = 0.1f;
     private static final float Z_LIMIT = 30f;
     private static final float START_Z = 15f;
     private static final float limitX = 7.5f;
+    private static float pointSpeed = 0.1f;
 
     public WhiteDots() {
         groundPoints = new ArrayList<>();
@@ -41,12 +41,15 @@ public class WhiteDots {
         gl.glDisable(GL10.GL_LIGHTING);
         for (float[] point : groundPoints) {
             gl.glPushMatrix();
+            point[2] += pointSpeed;
+            if (point[2] > Z_LIMIT) {
+                point[2] = START_Z;
+            }
             gl.glTranslatef(point[0], point[1], point[2]);
             drawPoint(gl);
             gl.glPopMatrix();
         }
         gl.glEnable(GL10.GL_LIGHTING);
-        this.update();
     }
 
     private void drawPoint(GL10 gl) {
@@ -71,13 +74,13 @@ public class WhiteDots {
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
     }
 
-    public void update() {
-        for (float[] point : groundPoints) {
-            point[2] += POINT_SPEED;
-            if (point[2] > Z_LIMIT) {
-                point[2] = START_Z;
-            }
-        }
+    public void accelerate(float boost) {
+        pointSpeed += boost;
+        pointSpeed = Math.max(0.1f, Math.min(0.3f, pointSpeed));
+    }
+
+    public void setSpeed(float speed) {
+        pointSpeed = speed;
     }
 
 }

@@ -26,8 +26,8 @@ public class MyOpenGLRenderer implements Renderer {
 	private static final float SMOOTH_FACTOR = 0.1f;
 	private float deltaX = 0.0f;
 	private boolean cameraRotation = false;
-
 	private float aspect;
+	private float boostVal = 1.0f;
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
@@ -106,20 +106,39 @@ public class MyOpenGLRenderer implements Renderer {
 		float divisor = 1.5f;
 		GLU.gluLookAt(gl, arwing.getX() / divisor, arwing.getY() / divisor, 30, arwing.getX() / divisor, arwing.getY() / divisor, 0f, -deltaX / 5, 1f, 0f);
 
+		if (boostVal > 0.0f) {
+			if (!autoMovement) {
+				boostVal -= 0.01f;
+				whiteDots.accelerate(0.01f);
+				((Boost) boost).accelerate(-0.01f);
+			}
+			if (autoMovement && boostVal < 1.0f) {
+				boostVal += 0.01f;
+				whiteDots.setSpeed(0.1f);
+				((Boost) boost).accelerate(0.01f);
+			}
+		} else {
+			if (autoMovement) {
+				boostVal += 0.01f;
+				whiteDots.setSpeed(0.1f);
+				((Boost) boost).accelerate(0.01f);
+			} else {
+				whiteDots.setSpeed(0.1f);
+			}
+
+		}
+
 		background.draw(gl);
 		whiteDots.draw(gl);
 
 		float oscillation = 0.0f;
 		float oscillationSpeed = 0.02f;
 		float oscillationAmplitude = 0.25f;
-
         if (autoMovement) {
 			time += oscillationSpeed;
             oscillation = (float) Math.sin(time) * oscillationAmplitude;
 		}
-
 		oscillate(oscillation * oscillationSpeed);
-
 		updateSmoothMotion();
 
 		// Draw shadow
@@ -148,16 +167,13 @@ public class MyOpenGLRenderer implements Renderer {
 		arwing.draw(gl);
 		gl.glPopMatrix();
 
-
 		// Draw Texture
-
 		setOrthographicProjection(gl);
 		gl.glPushMatrix();
 		life.draw(gl);
 		shield.draw(gl);
 		boost.draw(gl);
 		gl.glPopMatrix();
-
 	}
 
 	private void setPerspectiveProjection(GL10 gl) {
