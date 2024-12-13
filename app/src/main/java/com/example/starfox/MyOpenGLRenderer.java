@@ -11,9 +11,11 @@ public class MyOpenGLRenderer implements Renderer {
 
 	public Context context;
 	public Arwing arwing;
-	public Background background;
 	public WhiteDots whiteDots;
-	public HUD hud;
+	public Texture background;
+	public Texture life;
+	public Texture shield;
+	public Texture boost;
 
 	private float time = 0.0f;
     private boolean autoMovement = true;
@@ -25,12 +27,16 @@ public class MyOpenGLRenderer implements Renderer {
 	private float deltaX = 0.0f;
 	private boolean cameraRotation = false;
 
+	private float aspect;
+
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
 		this.arwing = new Arwing(context, R.raw.starfox_ship);
 		this.background = new Background();
 		this.whiteDots = new WhiteDots();
-		this.hud = new HUD();
+		this.life = new Life();
+		this.shield = new Shield();
+		this.boost = new Boost();
 	}
 
 
@@ -55,8 +61,9 @@ public class MyOpenGLRenderer implements Renderer {
 
 		// Load background
 		background.loadTexture(gl, context, R.raw.corneria_route_bg);
-
-		hud.getLife().loadTexture(gl, context, R.raw.life);
+		life.loadTexture(gl, context, R.raw.life);
+		shield.loadTexture(gl, context, R.raw.shield);
+		boost.loadTexture(gl, context, R.raw.boost);
 
 		Light light = new Light(gl, GL10.GL_LIGHT0);
 		light.setPosition(new float[]{0.0f, -10.0f, 10.0f, 0.0f});
@@ -67,13 +74,13 @@ public class MyOpenGLRenderer implements Renderer {
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		if (height == 0) height = 1;   // To prevent divide by zero
-		float aspect = (float) width / height;
+		this.aspect = (float) width / height;
 
 		// Set the viewport (display area) to cover the entire window
 		gl.glViewport(0, 0, width, height);
 
 		// Use perspective projection
-		setPerspectiveProjection(gl, aspect);
+		setPerspectiveProjection(gl);
 
 		gl.glMatrixMode(GL10.GL_MODELVIEW);  // Select model-view matrix
 		gl.glLoadIdentity();                 // Reset
@@ -81,6 +88,7 @@ public class MyOpenGLRenderer implements Renderer {
 
     @Override
 	public void onDrawFrame(GL10 gl) {
+		setPerspectiveProjection(gl);
 		// Clear color and depth buffers using clear-value set earlier
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 		gl.glLoadIdentity();
@@ -98,7 +106,6 @@ public class MyOpenGLRenderer implements Renderer {
 		float divisor = 1.5f;
 		GLU.gluLookAt(gl, arwing.getX() / divisor, arwing.getY() / divisor, 30, arwing.getX() / divisor, arwing.getY() / divisor, 0f, -deltaX / 5, 1f, 0f);
 
-		gl.glBindTexture(GL10.GL_TEXTURE_2D, background.textureIDs[0]);
 		background.draw(gl);
 		whiteDots.draw(gl);
 
@@ -142,17 +149,18 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glPopMatrix();
 
 
-		// Draw HUD
+		// Draw Texture
 
-		/*setOrthographicProjection(gl);
-		gl.glBindTexture(GL10.GL_TEXTURE_2D, hud.getLife().textureIDs[0]);
+		setOrthographicProjection(gl);
 		gl.glPushMatrix();
-		hud.getLife().draw(gl);
-		gl.glPopMatrix();*/
+		life.draw(gl);
+		shield.draw(gl);
+		boost.draw(gl);
+		gl.glPopMatrix();
 
 	}
 
-	private void setPerspectiveProjection(GL10 gl, float aspect) {
+	private void setPerspectiveProjection(GL10 gl) {
 		gl.glClearDepthf(1.0f);            // Set depth's clear-value to farthest
 		gl.glEnable(GL10.GL_DEPTH_TEST);   // Enables depth-buffer for hidden surface removal
 		gl.glDepthMask(true);  // disable writes to Z-Buffer
@@ -161,7 +169,7 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glLoadIdentity();                 // Reset projection matrix
 
 		// Use perspective projection
-		GLU.gluPerspective(gl, 60, aspect, 0.1f, 100.f);
+		GLU.gluPerspective(gl, 60, this.aspect, 0.1f, 100.f);
 
 		gl.glMatrixMode(GL10.GL_MODELVIEW);  // Select model-view matrix
 		gl.glLoadIdentity();                 // Reset
@@ -173,6 +181,9 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glOrthof(-5,5,-4,4,-5,5);
 		gl.glDepthMask(false);  // disable writes to Z-Buffer
 		gl.glDisable(GL10.GL_DEPTH_TEST);  // disable depth-testing
+
+		gl.glEnable(GL10.GL_BLEND);  // enables image transparency
+		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);  // Indicates the color on alpha channel
 
 		gl.glMatrixMode(GL10.GL_MODELVIEW);
 		gl.glLoadIdentity();
