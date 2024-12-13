@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
@@ -40,7 +41,7 @@ public class MainActivity extends Activity {
 
             @Override
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
-                if (Math.abs(velocityX) > 0 && Math.abs(velocityY) < 1175) {
+                if (Math.abs(velocityX) > Math.abs(velocityY) && Math.abs(velocityY) < 1175) {
                     if (e2.getX() - e1.getX() > 0) {
                         renderer.doBarrelRoll(true); // Rotate to the right
                     } else {
@@ -84,16 +85,35 @@ public class MainActivity extends Activity {
         super.onConfigurationChanged(newConfig);
     }
 
+    private float[] screenToWorldCoordinates(float x, float y, int screenWidth, int screenHeight) {
+        float normalizedX = x / screenWidth;
+        float normalizedY = y / screenHeight;
+
+        float worldX = normalizedX * (5.0f);
+        float worldY = 4.0f - normalizedY * (4.0f);
+
+        return new float[]{worldX, worldY};
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
         float x = event.getX();
         float y = event.getY();
-
         float TOUCH_SCALE_FACTOR = 200.0f;
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                float[] worldCoords = screenToWorldCoordinates(x, y, screenWidth, screenHeight);
+                if (worldCoords[0] >= 4.5f && worldCoords[0] <= 5.0f &&
+                        worldCoords[1] >= 3.5f && worldCoords[1] <= 4.0f) {
+                    renderer.switchCamera();
+                }
                 previousX = x;
                 previousY = y;
                 renderer.setAutoMovement(false);
