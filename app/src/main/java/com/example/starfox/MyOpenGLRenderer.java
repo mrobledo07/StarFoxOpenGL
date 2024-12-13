@@ -17,6 +17,7 @@ public class MyOpenGLRenderer implements Renderer {
     public Texture shield;
     public Texture boost;
     public Texture cameraSwitch;
+    public Texture captainPrice;
 
     private float time = 0.0f;
     private boolean autoMovement = true;
@@ -45,6 +46,7 @@ public class MyOpenGLRenderer implements Renderer {
         this.shield = new Shield();
         this.boost = new Boost();
         this.cameraSwitch = new CameraSwitch();
+        this.captainPrice = new CaptainPrice();
     }
 
 
@@ -73,6 +75,7 @@ public class MyOpenGLRenderer implements Renderer {
         shield.loadTexture(gl, context, R.raw.shield);
         boost.loadTexture(gl, context, R.raw.boost);
         cameraSwitch.loadTexture(gl, context, R.raw.camera_switch);
+        captainPrice.loadTexture(gl, context, R.raw.captain_price);
 
         Light light = new Light(gl, GL10.GL_LIGHT0);
         light.setPosition(new float[]{0.0f, -10.0f, 10.0f, 0.0f});
@@ -149,7 +152,7 @@ public class MyOpenGLRenderer implements Renderer {
                 barrelRoll = false;
             }
         }
-
+        captainPrice.draw(gl);
         background.draw(gl);
         whiteDots.draw(gl);
 
