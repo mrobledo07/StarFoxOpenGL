@@ -30,6 +30,9 @@ public class MyOpenGLRenderer implements Renderer {
 	private float boostVal = 1.0f;
 	private float boostVal2 = 0.0f;
 	private boolean boostState = false;
+	private boolean barrelRoll = false;
+	private float barrelRollAngle = 0.0f;
+	private boolean barrelRolDirectionRight = true;
 
 	public MyOpenGLRenderer(Context context){
 		this.context = context;
@@ -131,6 +134,14 @@ public class MyOpenGLRenderer implements Renderer {
 			((Boost) boost).accelerate(0.01f);
 		}
 
+		if (barrelRoll) {
+			barrelRollAngle += 10.0f;
+			if (barrelRollAngle >= 360.0f) {
+				barrelRollAngle = 0.0f;
+				barrelRoll = false;
+			}
+		}
+
 		background.draw(gl);
 		whiteDots.draw(gl);
 
@@ -153,11 +164,14 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
 		gl.glScalef(1, 0, 1);
+		if (barrelRoll) {
+			gl.glRotatef(barrelRollAngle * (this.barrelRolDirectionRight ? -1 : 1), 0, 0, 1);
+		}
 		arwing.draw(gl);
 		gl.glEnable(GL10.GL_LIGHTING);
 		gl.glPopMatrix();
 
-		// Draw object
+		// Draw spaceship
 		gl.glPushMatrix();
 		if (autoMovement) {
 			// put object in the center of the screen slowly
@@ -167,6 +181,9 @@ public class MyOpenGLRenderer implements Renderer {
 		gl.glRotatef(-rotationX,0,0,1);			   // Rotation horizontal movement
 		gl.glRotatef(rotationY, 1.0f, 0.0f, 0.0f);    // Vertical movement
 		gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
+		if (barrelRoll) {
+			gl.glRotatef(barrelRollAngle * (this.barrelRolDirectionRight ? -1 : 1), 0, 0, 1);
+		}
 		arwing.draw(gl);
 		gl.glPopMatrix();
 
@@ -261,5 +278,10 @@ public class MyOpenGLRenderer implements Renderer {
 
 	public void unsetBoost() {
 		this.boostState = false;
+	}
+
+	public void doBarrelRoll(boolean directionRight) {
+		this.barrelRoll = true;
+		this.barrelRolDirectionRight = directionRight;
 	}
 }

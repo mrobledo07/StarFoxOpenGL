@@ -33,9 +33,22 @@ public class MainActivity extends Activity {
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public boolean onDoubleTap(@NonNull MotionEvent e) {
+            public boolean onDoubleTap(MotionEvent e) {
                 renderer.setBoost();
                 return true;
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+                if (Math.abs(velocityX) > 0 && Math.abs(velocityY) < 1175) {
+                    if (e2.getX() - e1.getX() > 0) {
+                        renderer.doBarrelRoll(true); // Rotate to the right
+                    } else {
+                        renderer.doBarrelRoll(false); // Rotate to the left
+                    }
+                    return true;
+                }
+                return false;
             }
         });
     }
