@@ -9,29 +9,48 @@ import java.util.TimerTask;
 
 public class DialogueBox extends Texture {
     private Texture[] boxTextures;
-    private Texture[] foxTextures;
+    private Texture[][] charactersTextures;
+    private Texture[] dialoguesTextures;
+    private int[] dialoguesAudio;
     private int currentTextureIndex;
-    private int currentFoxIndex;
-    private final float[] vertices;
-    private final float[] texCoords;
+    private int currentCharacterIndex;
+    private int currentCharacterImage;
+    private final float[] verticesBox;
+    private final float[] texCoordsBox;
+    private final float[] verticesDialogue;
+    private final float[] texCoordsDialogue;
     private boolean isVisible;
-    private boolean isFoxTalking;
+    private boolean isCharacterTalking;
     private final Timer timer;
     private TimerTask textureTask;
     private TimerTask foxTask;
     private MediaPlayer mediaPlayer;
-    private Texture dialogue;
+    private Context context;
 
 
     public DialogueBox() {
-        this.vertices = new float[]{
+        this.verticesBox = new float[]{
                 -2.75f, -3.75f, 0.0f,  // 0. left-bottom
                 -1.0f, -3.75f, 0.0f,  // 1. right-bottom
                 -2.75f,  -1.25f, 0.0f,  // 2. left-top
                 -1.0f,  -1.25f, 0.0f   // 3. right-top
         };
 
-        this.texCoords = new float[]{
+        this.texCoordsBox = new float[]{
+                0.0f, 1.0f,  // A. left-bottom
+                1.0f, 1.0f,  // B. right-bottom
+                0.0f, 0.0f,  // C. left-top
+                1.0f, 0.0f   // D. right-top
+        };
+
+        this.verticesDialogue = new float[]{
+                -0.5f, -6.5f, 0.0f,  // 0. left-bottom
+                2.75f, -6.5f, 0.0f,  // 1. right-bottom
+                -0.5f,  -0.5f, 0.0f,  // 2. left-top
+                2.75f,  -0.5f, 0.0f   // 3. right-top
+        };
+
+        this.texCoordsDialogue = new float[]{ // Texture coords
                 0.0f, 1.0f,  // A. left-bottom
                 1.0f, 1.0f,  // B. right-bottom
                 0.0f, 0.0f,  // C. left-top
@@ -39,28 +58,63 @@ public class DialogueBox extends Texture {
         };
 
         this.isVisible = false;
-        this.isFoxTalking = false;
+        this.isCharacterTalking = false;
         this.timer = new Timer();
     }
 
 
-    public void loadTexture(GL10 gl, Context context, int[] textureResources, int[] foxTextureResources, Texture dialogue) {
+    public void loadTexture(GL10 gl, Context context) {
+        this.context = context;
+        int[] textureResources = {R.raw.dialogue_box_0, R.raw.dialogue_box_1, R.raw.dialogue_box_2,
+                R.raw.dialogue_box_3, R.raw.dialogue_box_4, R.raw.dialogue_box_5};
+
+        int[][] charactersResources = {
+                {R.raw.fox0, R.raw.fox1},
+                {R.raw.falcon0, R.raw.falcon1},
+                {R.raw.rabbit0, R.raw.rabbit1},
+        };
+
+        int[] dialoguesResources = {
+                R.raw.barrel_roll,
+                R.raw.move_faster,
+                R.raw.obstacles_detected
+        };
+
+        int[] dialoguesAudio = {
+                R.raw.dialogue_audio_fox,
+                R.raw.dialogue_audio_falcon,
+                R.raw.dialogue_audio_rabbit
+        };
+
         boxTextures = new Texture[textureResources.length];
-        this.dialogue = dialogue;
         for (int i = 0; i < textureResources.length; i++) {
             boxTextures[i] = new Texture();
             boxTextures[i].loadTexture(gl, context, textureResources[i]);
-            boxTextures[i].setBuffers(vertices, texCoords);
+            boxTextures[i].setBuffers(verticesBox, texCoordsBox);
         }
-        foxTextures = new Texture[foxTextureResources.length];
-        for (int i = 0; i < foxTextureResources.length; i++) {
-            foxTextures[i] = new Texture();
-            foxTextures[i].loadTexture(gl, context, foxTextureResources[i]);
-            foxTextures[i].setBuffers(vertices, texCoords);
+
+        charactersTextures = new Texture[charactersResources.length][];
+        for (int i = 0; i < charactersTextures.length; i++) {
+            charactersTextures[i] = new Texture[charactersResources[i].length];
+            for (int j = 0; j < charactersTextures[i].length; j++) {
+                charactersTextures[i][j] = new Texture();
+                charactersTextures[i][j].loadTexture(gl, context, charactersResources[i][j]);
+                charactersTextures[i][j].setBuffers(verticesBox, texCoordsBox);
+            }
         }
+
+        dialoguesTextures = new Texture[dialoguesResources.length];
+        for (int i = 0; i < dialoguesTextures.length; i++) {
+            dialoguesTextures[i] = new Texture();
+            dialoguesTextures[i].loadTexture(gl, context, dialoguesResources[i]);
+            dialoguesTextures[i].setBuffers(verticesDialogue, texCoordsDialogue);
+        }
+
+        this.dialoguesAudio = dialoguesAudio;
+        currentCharacterImage = 0;
+        currentCharacterIndex = 0;
         currentTextureIndex = 0;
-        currentFoxIndex = 0;
-        mediaPlayer = MediaPlayer.create(context, R.raw.dialogue_audio_fox);
+        this.mediaPlayer = MediaPlayer.create(context, dialoguesAudio[currentCharacterIndex]);
         scheduleDialogueBoxOn();
     }
 
@@ -81,15 +135,15 @@ public class DialogueBox extends Texture {
         timer.schedule(textureTask, 0, 150);
     }
 
-    private void startFoxTextureTransition() {
+    private void startCharacterTextureTransition() {
         if (foxTask != null) {
             foxTask.cancel();
         }
-        isFoxTalking = true;
+        isCharacterTalking = true;
         foxTask = new TimerTask() {
             @Override
             public void run() {
-                nextFoxTexture();
+                nextCharacterTexture();
             }
         };
         timer.schedule(foxTask, 0, 50);
@@ -100,8 +154,7 @@ public class DialogueBox extends Texture {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                isFoxTalking = false;
-                currentFoxIndex = 0;
+                isCharacterTalking = false;
             }
         }, 1500);
 
@@ -121,8 +174,17 @@ public class DialogueBox extends Texture {
             public void run() {
                 isVisible = false;
                 currentTextureIndex = 0;
+
+                if (currentCharacterIndex < charactersTextures.length - 1) {
+                    currentCharacterIndex++;
+                } else {
+                    currentCharacterIndex = 0;
+                }
+
                 if (mediaPlayer != null) {
                     mediaPlayer.pause();
+                    // update mediaplayer with the next character audio
+                    mediaPlayer = MediaPlayer.create(context, dialoguesAudio[currentCharacterIndex]);
                 }
                 scheduleDialogueBoxOn();
             }
@@ -134,14 +196,15 @@ public class DialogueBox extends Texture {
             @Override
             public void run() {
                 isVisible = true;
+                isCharacterTalking = true;
                 if (mediaPlayer != null) {
                     mediaPlayer.start();
                 }
                 startTextureTransition(false);
-                startFoxTextureTransition();
+                startCharacterTextureTransition();
                 scheduleDialogueBoxOff();
             }
-        }, 10000);
+        }, 5000);
     }
 
    @Override
@@ -151,9 +214,8 @@ public class DialogueBox extends Texture {
         if (currentTextureIndex < boxTextures.length) {
             boxTextures[currentTextureIndex].draw(gl);
         } else {
-            dialogue.draw(gl);
-            if (currentFoxIndex < foxTextures.length)
-                foxTextures[currentFoxIndex].draw(gl);
+            dialoguesTextures[currentCharacterIndex].draw(gl);
+            charactersTextures[currentCharacterIndex][currentCharacterImage].draw(gl);
         }
     }
 
@@ -177,13 +239,13 @@ public class DialogueBox extends Texture {
         }
     }
 
-    public void nextFoxTexture() {
-        if (!isVisible || !isFoxTalking) return;
+    public void nextCharacterTexture() {
+        if (!isVisible || !isCharacterTalking) return;
 
-        if (currentFoxIndex < foxTextures.length - 1) {
-            currentFoxIndex++;
+        if (currentCharacterImage <  charactersTextures[currentCharacterIndex].length - 1) {
+            currentCharacterImage++;
         } else {
-            currentFoxIndex = 0;
+            currentCharacterImage = 0;
         }
 
     }
