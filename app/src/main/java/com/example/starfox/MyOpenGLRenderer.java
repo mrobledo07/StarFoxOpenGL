@@ -19,6 +19,7 @@ public class MyOpenGLRenderer implements Renderer {
     public Texture cameraSwitch;
     public Texture captainPrice;
     public Texture dialogue;
+    public Texture dialogueBox;
 
     private float time = 0.0f;
     private boolean autoMovement = true;
@@ -49,6 +50,7 @@ public class MyOpenGLRenderer implements Renderer {
         this.cameraSwitch = new CameraSwitch();
         this.captainPrice = new CaptainPrice();
         this.dialogue = new Dialogue();
+        this.dialogueBox = new DialogueBox();
     }
 
 
@@ -79,6 +81,9 @@ public class MyOpenGLRenderer implements Renderer {
         cameraSwitch.loadTexture(gl, context, R.raw.camera_switch);
         captainPrice.loadTexture(gl, context, R.raw.captain_price);
         dialogue.loadTexture(gl, context, R.raw.barrel_roll);
+        ((DialogueBox)dialogueBox).loadTexture(gl, context,
+                new int[]{R.raw.dialogue_box_0, R.raw.dialogue_box_1, R.raw.dialogue_box_2, R.raw.dialogue_box_3, R.raw.dialogue_box_4, R.raw.dialogue_box_5},
+                new int[]{R.raw.fox0, R.raw.fox1}, dialogue);
 
         Light light = new Light(gl, GL10.GL_LIGHT0);
         light.setPosition(new float[]{0.0f, -10.0f, 10.0f, 0.0f});
@@ -208,7 +213,7 @@ public class MyOpenGLRenderer implements Renderer {
         shield.draw(gl);
         boost.draw(gl);
         cameraSwitch.draw(gl);
-        dialogue.draw(gl);
+        dialogueBox.draw(gl);
         gl.glPopMatrix();
     }
 
