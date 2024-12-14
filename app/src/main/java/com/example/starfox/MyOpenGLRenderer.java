@@ -18,7 +18,6 @@ public class MyOpenGLRenderer implements Renderer {
     public Texture boost;
     public Texture cameraSwitch;
     public Texture captainPrice;
-    public Texture dialogue;
     public Texture dialogueBox;
 
     private float time = 0.0f;
@@ -49,7 +48,6 @@ public class MyOpenGLRenderer implements Renderer {
         this.boost = new Boost();
         this.cameraSwitch = new CameraSwitch();
         this.captainPrice = new CaptainPrice();
-        this.dialogue = new Dialogue();
         this.dialogueBox = new DialogueBox();
     }
 
@@ -80,7 +78,6 @@ public class MyOpenGLRenderer implements Renderer {
         boost.loadTexture(gl, context, R.raw.boost);
         cameraSwitch.loadTexture(gl, context, R.raw.camera_switch);
         captainPrice.loadTexture(gl, context, R.raw.captain_price);
-        dialogue.loadTexture(gl, context, R.raw.barrel_roll);
         ((DialogueBox)dialogueBox).loadTexture(gl, context);
 
         Light light = new Light(gl, GL10.GL_LIGHT0);
@@ -306,5 +303,27 @@ public class MyOpenGLRenderer implements Renderer {
 
     public void switchCamera() {
         this.switchCamera = !this.switchCamera;
+    }
+
+    public void startMediaPlayer() {
+        if (((DialogueBox)dialogueBox).getMediaPlayer() != null) {
+            ((DialogueBox)dialogueBox).getMediaPlayer().start();
+            ((DialogueBox)dialogueBox).setMediaPlayerIsPlaying(true);
+        }
+    }
+
+    public void pauseMediaPlayer() {
+        if (((DialogueBox)dialogueBox).getMediaPlayer() != null) {
+            ((DialogueBox) dialogueBox).getMediaPlayer().pause();
+            ((DialogueBox)dialogueBox).setMediaPlayerIsPlaying(false);
+        }
+    }
+
+    public void destroyMediaPlayer() {
+        if (((DialogueBox)dialogueBox).getMediaPlayer() != null) {
+            ((DialogueBox)dialogueBox).getMediaPlayer().release();
+            ((DialogueBox)dialogueBox).setMediaPlayer(null);
+            ((DialogueBox)dialogueBox).setMediaPlayerIsPlaying(false);
+        }
     }
 }

@@ -26,6 +26,7 @@ public class DialogueBox extends Texture {
     private TimerTask foxTask;
     private MediaPlayer mediaPlayer;
     private Context context;
+    private boolean mediaPlayerIsPlaying;
 
 
     public DialogueBox() {
@@ -59,9 +60,9 @@ public class DialogueBox extends Texture {
 
         this.isVisible = false;
         this.isCharacterTalking = false;
+        this.mediaPlayerIsPlaying = true;
         this.timer = new Timer();
     }
-
 
     public void loadTexture(GL10 gl, Context context) {
         this.context = context;
@@ -181,7 +182,7 @@ public class DialogueBox extends Texture {
                     currentCharacterIndex = 0;
                 }
 
-                if (mediaPlayer != null) {
+                if (mediaPlayer != null && mediaPlayerIsPlaying) {
                     mediaPlayer.pause();
                     // update mediaplayer with the next character audio
                     mediaPlayer = MediaPlayer.create(context, dialoguesAudio[currentCharacterIndex]);
@@ -197,7 +198,7 @@ public class DialogueBox extends Texture {
             public void run() {
                 isVisible = true;
                 isCharacterTalking = true;
-                if (mediaPlayer != null) {
+                if (mediaPlayer != null && mediaPlayerIsPlaying) {
                     mediaPlayer.start();
                 }
                 startTextureTransition(false);
@@ -249,4 +250,17 @@ public class DialogueBox extends Texture {
         }
 
     }
+
+    public MediaPlayer getMediaPlayer() {
+        return mediaPlayer;
+    }
+
+    public void setMediaPlayer(MediaPlayer mediaPlayer) {
+        this.mediaPlayer = mediaPlayer;
+    }
+
+    public void setMediaPlayerIsPlaying(boolean mediaPlayerIsPlaying) {
+        this.mediaPlayerIsPlaying = mediaPlayerIsPlaying;
+    }
+
 }

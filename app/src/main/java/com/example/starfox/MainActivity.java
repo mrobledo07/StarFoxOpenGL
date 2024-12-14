@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
         super.onPause();
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
+            renderer.pauseMediaPlayer();
         }
     }
 
@@ -67,6 +68,7 @@ public class MainActivity extends Activity {
         super.onResume();
         if (mediaPlayer != null) {
             mediaPlayer.start();
+            renderer.startMediaPlayer();
         }
         renderer.setAutoMovement(true);
     }
@@ -77,6 +79,7 @@ public class MainActivity extends Activity {
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;
+            renderer.destroyMediaPlayer();
         }
     }
 
