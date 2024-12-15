@@ -10,7 +10,7 @@ import android.opengl.GLU;
 public class MyOpenGLRenderer implements Renderer {
 
     public Context context;
-    public Arwing arwing;
+    public Object3D arwing;
     public WhiteDots whiteDots;
     public Texture background;
     public Texture life;
@@ -19,6 +19,7 @@ public class MyOpenGLRenderer implements Renderer {
     public Texture cameraSwitch;
     public Texture captainPrice;
     public Texture dialogueBox;
+    public ObjectSpawner objectSpawner;
 
     private float time = 0.0f;
     private boolean autoMovement = true;
@@ -38,9 +39,10 @@ public class MyOpenGLRenderer implements Renderer {
     private boolean barrelRolDirectionRight = true;
     private boolean switchCamera = false;
 
+
     public MyOpenGLRenderer(Context context) {
         this.context = context;
-        this.arwing = new Arwing(context, R.raw.starfox_ship);
+        this.arwing = new Object3D(context, R.raw.starfox_ship);
         this.background = new Background();
         this.whiteDots = new WhiteDots();
         this.life = new Life();
@@ -49,6 +51,7 @@ public class MyOpenGLRenderer implements Renderer {
         this.cameraSwitch = new CameraSwitch();
         this.captainPrice = new CaptainPrice();
         this.dialogueBox = new DialogueBox();
+        this.objectSpawner = new ObjectSpawner(context);
     }
 
 
@@ -70,6 +73,7 @@ public class MyOpenGLRenderer implements Renderer {
 
         // Enable Normalize
         gl.glEnable(GL10.GL_NORMALIZE);
+
 
         // Load background
         background.loadTexture(gl, context, R.raw.corneria_route_bg);
@@ -129,6 +133,7 @@ public class MyOpenGLRenderer implements Renderer {
             boostVal -= 0.01f;
             boostVal2 += 0.01f;
             whiteDots.accelerate(0.01f);
+            objectSpawner.accelerate(0.01f);
             ((Boost) boost).accelerate(-0.01f);
         }
 
@@ -138,6 +143,7 @@ public class MyOpenGLRenderer implements Renderer {
                 boostVal2 = 0.0f;
             }
             whiteDots.accelerate(-0.01f);
+            objectSpawner.accelerate(-0.01f);
         }
 
         if (!boostState && boostVal < 1.0f) {
@@ -145,6 +151,7 @@ public class MyOpenGLRenderer implements Renderer {
             boostVal2 -= 0.01f;
             if (boostVal2 < 0.0f) boostVal2 = 0.0f;
             whiteDots.accelerate(-0.01f);
+            objectSpawner.accelerate(-0.01f);
             ((Boost) boost).accelerate(0.01f);
         }
 
@@ -201,7 +208,12 @@ public class MyOpenGLRenderer implements Renderer {
         arwing.draw(gl);
         gl.glPopMatrix();
 
-        // Draw Texture
+
+        // Draw objects obstacles
+        objectSpawner.draw(gl);
+
+
+        // Draw HUD
         setOrthographicProjection(gl);
         gl.glPushMatrix();
         life.draw(gl);

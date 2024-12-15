@@ -79,8 +79,4 @@ public class WhiteDots {
         pointSpeed = Math.max(0.1f, Math.min(0.3f, pointSpeed));
     }
 
-    public void setSpeed(float speed) {
-        pointSpeed = speed;
-    }
-
 }

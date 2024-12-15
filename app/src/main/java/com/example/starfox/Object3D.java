@@ -1,5 +1,7 @@
 package com.example.starfox;
 
+import android.content.Context;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -13,10 +15,7 @@ import java.util.ArrayList;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import android.content.Context;
-
-public class Arwing {
-
+public class Object3D {
     // Color enabled or not
     boolean colorEnabled = false;
 
@@ -38,10 +37,10 @@ public class Arwing {
     int[] textures;
     int numFaceIndexs = 0;
 
-    private float scale = 1.0f;
-    private float objectX = 0.0f, objectY = 0.0f;
+    private float objectX = 0.0f, objectY = 0.0f, objectZ = 0.0f;
 
-    public Arwing(Context ctx, int filenameId) {
+
+    public Object3D(Context ctx, int filenameId) {
 
         try {
             String line;
@@ -177,33 +176,33 @@ public class Arwing {
         gl.glDisableClientState(GL10.GL_NORMAL_ARRAY);
     }
 
-    public void setScale(float scale) {
-        this.scale = scale;
-    }
-
-    public float getScale() {
-        return this.scale;
-    }
-
     public void setPosition(float x, float y) {
-    	this.objectX = x;
-    	this.objectY = y;
-    }
-
-    public void setX(float x) {
         this.objectX = x;
-
+        this.objectY = y;
     }
+
+    public void setPosition(float x, float y, float z) {
+        this.objectX = x;
+        this.objectY = y;
+        this.objectZ = z;
+    }
+
+    public void setX(float x) { this.objectX = x; }
 
     public void setY(float y) {
         this.objectY = y;
     }
 
+    public void setZ(float z) { this.objectZ = z; }
+
     public float getX() {
-    	return this.objectX;
+        return this.objectX;
     }
 
     public float getY() {
         return this.objectY;
     }
+
+    public float getZ() { return this.objectZ; }
+
 }
