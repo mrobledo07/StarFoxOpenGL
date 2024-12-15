@@ -15,10 +15,10 @@ public class MyOpenGLRenderer implements Renderer {
     public Texture background;
     public Texture life;
     public Texture shield;
-    public Texture boost;
+    public Boost boost;
     public Texture cameraSwitch;
     public Texture captainPrice;
-    public Texture dialogueBox;
+    public DialogueBox dialogueBox;
     public ObjectSpawner objectSpawner;
 
     private float time = 0.0f;
@@ -74,14 +74,14 @@ public class MyOpenGLRenderer implements Renderer {
         gl.glEnable(GL10.GL_NORMALIZE);
 
 
-        // Load background
+        // Load textures
         background.loadTexture(gl, context, R.raw.corneria_bg);
         life.loadTexture(gl, context, R.raw.life);
         shield.loadTexture(gl, context, R.raw.shield);
         boost.loadTexture(gl, context, R.raw.boost);
         cameraSwitch.loadTexture(gl, context, R.raw.camera_switch);
         captainPrice.loadTexture(gl, context, R.raw.captain_price);
-        ((DialogueBox)dialogueBox).loadTexture(gl, context);
+        dialogueBox.loadTexture(gl, context);
 
         Light light = new Light(gl, GL10.GL_LIGHT0);
         light.setPosition(new float[]{0.0f, -10.0f, 10.0f, 0.0f});
@@ -107,6 +107,7 @@ public class MyOpenGLRenderer implements Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         setPerspectiveProjection(gl);
+
         // Clear color and depth buffers using clear-value set earlier
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
         gl.glLoadIdentity();
@@ -133,7 +134,7 @@ public class MyOpenGLRenderer implements Renderer {
             boostVal2 += 0.01f;
             whiteDots.accelerate(0.01f);
             objectSpawner.accelerate(0.01f);
-            ((Boost) boost).accelerate(-0.01f);
+            boost.accelerate(-0.01f);
         }
 
         if (boostState && boostVal < 0.0f) {
@@ -151,7 +152,7 @@ public class MyOpenGLRenderer implements Renderer {
             if (boostVal2 < 0.0f) boostVal2 = 0.0f;
             whiteDots.accelerate(-0.01f);
             objectSpawner.accelerate(-0.01f);
-            ((Boost) boost).accelerate(0.01f);
+            boost.accelerate(0.01f);
         }
 
         if (barrelRoll) {
@@ -161,6 +162,8 @@ public class MyOpenGLRenderer implements Renderer {
                 barrelRoll = false;
             }
         }
+
+        // Draw textures
         captainPrice.draw(gl);
         background.draw(gl);
         whiteDots.draw(gl);

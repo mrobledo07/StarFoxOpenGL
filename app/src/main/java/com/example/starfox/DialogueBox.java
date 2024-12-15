@@ -23,7 +23,7 @@ public class DialogueBox extends Texture {
     private boolean isCharacterTalking;
     private final Timer timer;
     private TimerTask textureTask;
-    private TimerTask foxTask;
+    private TimerTask characterTask;
     private MediaPlayer mediaPlayer;
     private Context context;
     private boolean mediaPlayerIsPlaying;
@@ -119,6 +119,34 @@ public class DialogueBox extends Texture {
         scheduleDialogueBoxOn();
     }
 
+    @Override
+    public void draw(GL10 gl) {
+        if (!isVisible) return;
+
+        if (currentTextureIndex < boxTextures.length) {
+            boxTextures[currentTextureIndex].draw(gl);
+        } else {
+            dialoguesTextures[currentCharacterIndex].draw(gl);
+            charactersTextures[currentCharacterIndex][currentCharacterImage].draw(gl);
+        }
+    }
+
+    private void scheduleDialogueBoxOn() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                isVisible = true;
+                isCharacterTalking = true;
+                if (mediaPlayer != null && mediaPlayerIsPlaying) {
+                    mediaPlayer.start();
+                }
+                startTextureTransition(false);
+                startCharacterTextureTransition();
+                scheduleDialogueBoxOff();
+            }
+        }, 5000);
+    }
+
     private void startTextureTransition(boolean reverse) {
         if (textureTask != null) {
             textureTask.cancel();
@@ -137,17 +165,17 @@ public class DialogueBox extends Texture {
     }
 
     private void startCharacterTextureTransition() {
-        if (foxTask != null) {
-            foxTask.cancel();
+        if (characterTask != null) {
+            characterTask.cancel();
         }
         isCharacterTalking = true;
-        foxTask = new TimerTask() {
+        characterTask = new TimerTask() {
             @Override
             public void run() {
                 nextCharacterTexture();
             }
         };
-        timer.schedule(foxTask, 0, 50);
+        timer.schedule(characterTask, 0, 50);
     }
 
     private void scheduleDialogueBoxOff() {
@@ -192,33 +220,6 @@ public class DialogueBox extends Texture {
         }, 750);
     }
 
-    private void scheduleDialogueBoxOn() {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                isVisible = true;
-                isCharacterTalking = true;
-                if (mediaPlayer != null && mediaPlayerIsPlaying) {
-                    mediaPlayer.start();
-                }
-                startTextureTransition(false);
-                startCharacterTextureTransition();
-                scheduleDialogueBoxOff();
-            }
-        }, 5000);
-    }
-
-   @Override
-    public void draw(GL10 gl) {
-        if (!isVisible) return;
-
-        if (currentTextureIndex < boxTextures.length) {
-            boxTextures[currentTextureIndex].draw(gl);
-        } else {
-            dialoguesTextures[currentCharacterIndex].draw(gl);
-            charactersTextures[currentCharacterIndex][currentCharacterImage].draw(gl);
-        }
-    }
 
     public void nextTexture() {
         if (!isVisible) return;
@@ -241,7 +242,11 @@ public class DialogueBox extends Texture {
     }
 
     public void nextCharacterTexture() {
-        if (!isVisible || !isCharacterTalking) return;
+        if (!isVisible || !isCharacterTalking){
+            currentCharacterImage = 0;
+            return;
+        }
+
 
         if (currentCharacterImage <  charactersTextures[currentCharacterIndex].length - 1) {
             currentCharacterImage++;
