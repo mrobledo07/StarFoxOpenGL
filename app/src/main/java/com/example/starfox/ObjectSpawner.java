@@ -179,11 +179,6 @@ public class ObjectSpawner {
         }
     }
 
-    public void accelerate(float boost) {
-        moveSpeed += boost;
-        moveSpeed = Math.max(0.1f, Math.min(0.3f, moveSpeed));
-    }
-
     private void setRandomPosition(Object3D obj) {
         boolean positionValid;
 
@@ -208,7 +203,14 @@ public class ObjectSpawner {
         } while (!positionValid);
     }
 
+    public void accelerate(float boost) {
+        moveSpeed += boost;
+        moveSpeed = Math.max(0.1f, Math.min(0.3f, moveSpeed));
+    }
+
+
     private float distance(float x1, float z1, float x2, float z2) {
         return (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(z2 - z1, 2));
     }
+
 }

@@ -39,7 +39,6 @@ public class MyOpenGLRenderer implements Renderer {
     private boolean barrelRolDirectionRight = true;
     private boolean switchCamera = false;
 
-
     public MyOpenGLRenderer(Context context) {
         this.context = context;
         this.arwing = new Object3D(context, R.raw.starfox_ship);
@@ -76,7 +75,7 @@ public class MyOpenGLRenderer implements Renderer {
 
 
         // Load background
-        background.loadTexture(gl, context, R.raw.corneria_route_bg);
+        background.loadTexture(gl, context, R.raw.corneria_bg);
         life.loadTexture(gl, context, R.raw.life);
         shield.loadTexture(gl, context, R.raw.shield);
         boost.loadTexture(gl, context, R.raw.boost);
@@ -176,11 +175,13 @@ public class MyOpenGLRenderer implements Renderer {
         oscillate(oscillation * oscillationSpeed);
         updateSmoothMotion();
 
+        arwing.setZ(27.5f - boostVal2);
+
         // Draw shadow
         gl.glPushMatrix();
         float shadowScale = Math.max(0.0f, 1.0f - (arwing.getY() / 4));
         gl.glDisable(GL10.GL_LIGHTING);
-        gl.glTranslatef(arwing.getX(), -3f, 27.5f - boostVal2);
+        gl.glTranslatef(arwing.getX(), -3f, arwing.getZ());
         gl.glScalef(shadowScale, shadowScale, 1.0f);
         gl.glRotatef(-rotationX, 0, 0, 1);               // Rotation horizontal movement
         gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
@@ -198,7 +199,7 @@ public class MyOpenGLRenderer implements Renderer {
             // put object in the center of the screen slowly
             arwing.setPosition(arwing.getX() - arwing.getX() * 0.01f, arwing.getY() - arwing.getY() * 0.01f);
         }
-        gl.glTranslatef(arwing.getX(), arwing.getY(), 27.5f - boostVal2);
+        gl.glTranslatef(arwing.getX(), arwing.getY(), arwing.getZ());
         gl.glRotatef(-rotationX, 0, 0, 1);               // Rotation horizontal movement
         gl.glRotatef(rotationY, 1.0f, 0.0f, 0.0f);    // Vertical movement
         gl.glRotatef(-rotationX, 0.0f, 1.0f, 0.0f);   // Horizontal movement
